@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLC Sensor Polling & EStop Controller Multi-Loop Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 15px;
+      background: #f4f6f9;
+      color: #333;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 15px;
+    }
+    .control-panel {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    label { font-weight: bold; }
+    input[type="number"] {
+      width: 90px;
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-start { background: #28a745; color: white; }
+    .btn-start:hover { background: #218838; }
+    .btn-stop { background: #dc3545; color: white; }
+    .btn-stop:hover { background: #c82333; }
+    .btn-secondary { background: #6c757d; color: white; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+
+    .status-bar {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+    .status-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    .running { background: #d4edda; color: #155724; }
+    .stopped { background: #e2e3e5; color: #383d41; }
+    .exited { background: #f8d7da; color: #721c24; font-weight: bold; }
+
+    .log-container {
+      background: #1e1e1e;
+      color: #33ff33;
+      font-family: "Courier New", Courier, monospace;
+      padding: 15px;
+      border-radius: 6px;
+      height: 420px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .log-entry { margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+    .log-time { color: #888; }
+    .log-estop { color: #ff4d4d; font-weight: bold; }
+    .log-exit { color: #ffcc00; font-weight: bold; }
+    .log-error { color: #ff6666; }
+  </style>
+</head>
+<body>
+
+  <h2>PLC 感測器輪詢與急停控制器 (9+1 多重迴圈測試)</h2>
+
+  <div class="card">
+    <div class="control-panel">
+      <div>
+        <label for="interval">輪詢間隔:</label>
+        <input type="number" id="interval" value="1" min="0.1" step="0.1"> 秒
+      </div>
+      <div>
+        <label for="totalLoops">執行迴圈數:</label>
+        <input type="number" id="totalLoops" value="200" min="1" step="1"> 次
+      </div>
+      <button id="startBtn" class="btn-start" onclick="startPolling()">開始執行</button>
+      <button id="stopBtn" class="btn-stop" onclick="stopPolling('手動中斷')" disabled>手動中斷</button>
+      <button class="btn-secondary" onclick="clearLogs()">清除日誌</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="status-bar">
+      <div>系統狀態: <span id="statusBadge" class="status-badge stopped">已停止</span></div>
+      <div>迴圈進度: <span id="currentLoopUI">0</span> / <span id="totalLoopsUI">200</span></div>
+      <div>當前迴圈步驟: <span id="stepCountUI">0</span> / 10</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="log-container" id="logBox">
+      <div class="log-entry log-time">// 系統就緒。設定迴圈數後點擊「開始執行」...</div>
+    </div>
+  </div>
+
+  <script>
+    const SENSOR_URL = 'http://192.168.3.85:9090/allData/allSenosrData';
+    const ESTOP_URL = 'http://192.168.3.85:9090/plc/EStop';
+
+    let isPolling = false;
+    let timerId = null;
+    
+    let currentLoop = 1;     // 當前迴圈數
+    let targetTotalLoops = 200; // 目標總迴圈數
+    let stepCount = 0;       // 單一迴圈內步驟數 (1 ~ 10)
+
+    async function poll() {
+      if (!isPolling) return;
+
+      stepCount++;
+      updateUIStats();
+
+      const timestamp = new Date().toLocaleTimeString();
+
+      // 第 1 ~ 9 次：對 Sensor 發送輪詢請求
+      if (stepCount <= 9) {
+        try {
+          const response = await fetch(SENSOR_URL, { cache: 'no-store' });
+          let data;
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+          } else {
+            data = await response.text();
+          }
+
+          if (response.ok) {
+            appendLog(`[${timestamp}] [Loop ${currentLoop}/${targetTotalLoops}] [第 ${stepCount}/9 次] Sensor Data 讀取成功: ${typeof data === 'object' ? JSON.stringify(data) : data}`);
+          } else {
+            appendLog(`[${timestamp}] [Loop ${currentLoop}/${targetTotalLoops}] [第 ${stepCount}/9 次] Sensor Data 回應異常 HTTP ${response.status}`, 'log-error');
+          }
+        } catch (err) {
+          appendLog(`[${timestamp}] [Loop ${currentLoop}/${targetTotalLoops}] [第 ${stepCount}/9 次] 網路連線失敗/CORS錯誤: ${err.message}`, 'log-error');
+        }
+
+        // 排定下一次 Sensor 讀取
+        if (isPolling) {
+          const intervalSec = parseFloat(document.getElementById('interval').value) || 1;
+          timerId = setTimeout(poll, intervalSec * 1000);
+        }
+      } 
+      // 第 10 次：執行 EStop 急停
+      else if (stepCount === 10) {
+        appendLog(`[${timestamp}] [Loop ${currentLoop}/${targetTotalLoops}] [第 10 次操作] 觸發 EStop 強制停止...`, 'log-estop');
+        await triggerEStop();
+
+        // 檢查是否已完成所有迴圈
+        if (currentLoop < targetTotalLoops) {
+          appendLog(`--- Loop ${currentLoop} 完成，準備進入 Loop ${currentLoop + 1} ---`, 'log-time');
+          currentLoop++;
+          stepCount = 0; // 重置內部步驟計數
+          updateUIStats();
+
+          // 排定下一個 Loop 的第一步驟
+          if (isPolling) {
+            const intervalSec = parseFloat(document.getElementById('interval').value) || 1;
+            timerId = setTimeout(poll, intervalSec * 1000);
+          }
+        } else {
+          // 全部迴圈執行完畢，退出
+          exitProcess(`成功完成全部 ${targetTotalLoops} 次 9+1 測試迴圈！`);
+        }
+      }
+    }
+
+    async function triggerEStop() {
+      const timestamp = new Date().toLocaleTimeString();
+      try {
+        const response = await fetch(ESTOP_URL, { 
+          method: 'GET',
+          cache: 'no-store' 
+        });
+        
+        let resText = await response.text();
+        appendLog(`[${timestamp}] [Loop ${currentLoop}] [EStop] 請求回應 HTTP ${response.status} - 內容: ${resText}`, 'log-estop');
+      } catch (err) {
+        appendLog(`[${timestamp}] [Loop ${currentLoop}] [EStop] 發送急停命令失敗: ${err.message}`, 'log-error');
+      }
+    }
+
+    function startPolling() {
+      if (isPolling) return;
+      
+      targetTotalLoops = parseInt(document.getElementById('totalLoops').value, 10) || 1;
+      
+      isPolling = true;
+      currentLoop = 1;
+      stepCount = 0;
+      updateUIStats();
+
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+      document.getElementById('interval').disabled = true;
+      document.getElementById('totalLoops').disabled = true;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = "運作中...";
+      badge.className = "status-badge running";
+
+      appendLog(`[${new Date().toLocaleTimeString()}] 開始執行測試：共計畫執行 ${targetTotalLoops} 次 (9+1) 迴圈...`);
+      poll();
+    }
+
+    function stopPolling(reason = '手動中斷') {
+      isPolling = false;
+      if (timerId) clearTimeout(timerId);
+
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('interval').disabled = false;
+      document.getElementById('totalLoops').disabled = false;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = "已停止";
+      badge.className = "status-badge stopped";
+
+      appendLog(`[${new Date().toLocaleTimeString()}] 流程已中斷 (${reason})`);
+    }
+
+    function exitProcess(reason) {
+      isPolling = false;
+      if (timerId) clearTimeout(timerId);
+
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('interval').disabled = false;
+      document.getElementById('totalLoops').disabled = false;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = "EXIT (測試完成)";
+      badge.className = "status-badge exited";
+
+      appendLog(`--------------------------------------------------`);
+      appendLog(`[${new Date().toLocaleTimeString()}] [EXIT] 系統作業終止: ${reason}`, 'log-exit');
+      appendLog(`--------------------------------------------------`);
+    }
+
+    function appendLog(message, className = '') {
+      const logBox = document.getElementById('logBox');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${className}`;
+      entry.textContent = message;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function updateUIStats() {
+      document.getElementById('currentLoopUI').textContent = currentLoop;
+      document.getElementById('totalLoopsUI').textContent = targetTotalLoops;
+      document.getElementById('stepCountUI').textContent = stepCount;
+    }
+
+    function clearLogs() {
+      document.getElementById('logBox').innerHTML = '<div class="log-entry log-time">// 日誌已清除</div>';
+    }
+  </script>
+</body>
+</html>

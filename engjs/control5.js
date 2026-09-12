@@ -1,0 +1,301 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const boardContent = document.querySelector('.board-content');
+    const controlRows = document.querySelectorAll('.control-row');
+    const resetBtn = document.getElementById('reset-btn');
+    
+    const HOST = window.location.hostname || "192.168.3.85";
+    const API_BASE = `http://192.168.3.85:9090`;
+    
+    // API Endpoint Configurations
+    const WRITE_D_URL = `${API_BASE}/plc/writeDPoint`;
+    const READ_ALL_URL = `${API_BASE}/plc/AllDPointData`; // Preferred
+    const READ_SINGLE_URL = `${API_BASE}/plc/DPointData`; // Fallback
+    const WRITE_M_URL = `${API_BASE}/plc/writeMPoint`;
+
+    // ⚡ 1. Unified DEFAULT_PARAMS to align baseline across pages (fixes issue where calculation results in 99)
+    const DEFAULT_PARAMS = {
+        "T14": 5.0, "T0": 0.5, "T7": 1.0,
+        "T30": 1.0, "T3": 1.0, "T4": 1.0, "T31": 1.0, "T5": 1.0, "T6": 1.0, "T15": 5.0,
+        "T8": 1.0, "T9": 1.0, "T32": 1.0, "T10": 1.0, "T11": 1.0,
+        "T40": 1.0, "T12": 1.0, "T13": 1.0
+    };
+
+    // 2. PLC State Dictionary and Sequence
+    const PLC_STATES = {
+        1:  { animTime: 1.62, waitParam: "T14" },
+        30: { animTime: 1.00 },
+        31: { animTime: 0.20, waitParam: "T40" },
+        32: { animTime: 0.30, waitParam: "T12" },
+        33: { animTime: 0.50 },
+        34: { animTime: 1.00 },
+        35: { animTime: 0.50 },
+        36: { animTime: 0.30, waitParam: "T13" },
+        37: { animTime: 0.50 }
+    };
+    
+    // ⚡ control5 (Slide Cylinder) belongs to non-metal dedicated process: S1 + S30 ~ S37
+    const seqNonMetalFull = [1, 30, 31, 32, 33, 34, 35, 36, 37];
+    let cachedPLCData = {}; 
+
+    // Create confirmation bar
+    let confirmBar = document.querySelector('.floating-confirm-bar');
+    if (!confirmBar) {
+        confirmBar = document.createElement('div');
+        confirmBar.className = 'floating-confirm-bar';
+        confirmBar.innerHTML = `
+            <span class="confirm-text" style="color:white; font-size:16px; font-weight:bold;">Value changed&nbsp;&nbsp;&nbsp;Updated Hourly Output ➔ <span id="new-uph" style="color: #00ff88; font-size: 18px;">--</span></span>
+            <button class="confirm-btn" id="save-btn">Confirm Save (SET)</button>
+        `;
+        boardContent.appendChild(confirmBar);
+    }
+    const confirmBtn = confirmBar.querySelector('.confirm-btn');
+
+    const controllers = [];
+    // Corresponding parameters: T40 (Downward Stop), T12 (Wait After Gripping), T13 (Wait After Releasing)
+    const paramNames = ["T40", "T12", "T13"];
+
+    controlRows.forEach((row, index) => {
+        const timeDisplay = row.querySelector('.time-box');
+        const minusBtn = row.querySelector('.control-adjust button:first-child');
+        const plusBtn = row.querySelector('.control-adjust button:last-child');
+
+        const paramKey = paramNames[index] || `T${index}`;
+        // ⚡ Fix: Use DEFAULT_PARAMS for initial value to prevent calculation error (99)
+        let initialVal = DEFAULT_PARAMS[paramKey] !== undefined ? DEFAULT_PARAMS[paramKey] : 1.0;
+
+        const ctrl = {
+            param: paramKey,
+            original: initialVal, 
+            current: initialVal,  
+            display: timeDisplay,
+            update: (val) => {
+                ctrl.current = val;
+                timeDisplay.textContent = `${ctrl.current.toFixed(1)} sec`;
+                checkChanges();
+            },
+            commit: () => {
+                ctrl.original = ctrl.current;
+            }
+        };
+
+        timeDisplay.textContent = `${ctrl.current.toFixed(1)} sec`;
+
+        minusBtn.addEventListener('click', () => {
+            if (ctrl.current === null) return;
+            let nextVal = Math.round((ctrl.current - 0.5) * 10) / 10;
+            if (nextVal >= 0) ctrl.update(nextVal);
+        });
+
+        plusBtn.addEventListener('click', () => {
+            if (ctrl.current === null) return;
+            let nextVal = Math.round((ctrl.current + 0.5) * 10) / 10;
+            if (nextVal <= 10) ctrl.update(nextVal);
+        });
+
+        controllers.push(ctrl);
+    });
+
+    // ⚡ Calculate cycle time using non-metal sequence (S1+S30~S37) only
+    function calculateCycleTime(useCurrent = false) {
+        let totalTime = 0;
+        seqNonMetalFull.forEach(state => {
+            const step = PLC_STATES[state];
+            if (step) {
+                totalTime += step.animTime || 0; 
+                
+                if (step.waitParam) {
+                    // ⚡ Fix: Fallback to DEFAULT_PARAMS if parameter is missing
+                    let waitSec = DEFAULT_PARAMS[step.waitParam] !== undefined ? DEFAULT_PARAMS[step.waitParam] : 1.0; 
+
+                    let ctrl = controllers.find(c => c.param === step.waitParam);
+                    if (ctrl) {
+                        waitSec = useCurrent ? ctrl.current : ctrl.original;
+                    } 
+                    else if (cachedPLCData[step.waitParam] !== undefined) {
+                        waitSec = cachedPLCData[step.waitParam] / 10;
+                    }
+
+                    if (waitSec < 99) {
+                        totalTime += waitSec;
+                    }
+                }
+            }
+        });
+        return totalTime;
+    }
+
+    // ⚡ Update non-metal hourly output only
+    function updateUPH() {
+        let cycleTime = calculateCycleTime(false);
+        let currentUPH = cycleTime > 0 ? Math.round(3600 / cycleTime) : 0;
+        const uphElement = document.getElementById('current-uph');
+        if (uphElement) uphElement.innerText = currentUPH;
+    }
+
+    // Check value changes, toggle confirmation bar, and calculate preview non-metal output
+    function checkChanges() {
+        const hasChanged = controllers.some(c => c.current !== null && c.current !== c.original);
+        if (hasChanged) {
+            confirmBar.classList.add('show');
+            controllers.forEach(c => {
+                c.display.style.color = (c.current !== c.original) ? "#d9534f" : "#f08519";
+            });
+
+            // ⚡ Update preview non-metal UPH
+            let newCycleTime = calculateCycleTime(true);
+            let newUPH = newCycleTime > 0 ? Math.round(3600 / newCycleTime) : 0;
+            const newUphEl = document.getElementById('new-uph');
+            if (newUphEl) newUphEl.innerText = newUPH;
+
+        } else {
+            confirmBar.classList.remove('show');
+            controllers.forEach(c => c.display.style.color = "#f08519");
+        }
+        return hasChanged;
+    }
+
+    // Fallback fetch single parameter API (handles reply object)
+    async function fetchSingleParamData(ctrl) {
+        try {
+            const response = await fetch(`${READ_SINGLE_URL}?param=${ctrl.param}`);
+            if (!response.ok) return;
+            
+            let resData = await response.json();
+            if (resData && resData.reply) {
+                resData = resData.reply;
+            }
+
+            let rawVal;
+            if (typeof resData === 'number') {
+                rawVal = resData;
+            } else if (resData && resData.value !== undefined) {
+                rawVal = resData.value;
+            } else if (resData && resData[ctrl.param] !== undefined) {
+                rawVal = resData[ctrl.param];
+            }
+
+            if (rawVal !== undefined && rawVal !== null && !isNaN(rawVal)) {
+                const valFromPLC = Number(rawVal) / 10;
+                ctrl.original = valFromPLC;
+                ctrl.current = valFromPLC;
+                ctrl.display.textContent = `${valFromPLC.toFixed(1)} sec`;
+                
+                cachedPLCData[ctrl.param] = rawVal;
+            }
+        } catch (err) {
+            console.log(`[Fallback] Failed to read single parameter ${ctrl.param}`, err);
+        }
+    }
+
+    // Core logic: Unpack reply and update UI & output in real time
+    async function fetchLatestData() {
+        let allData = null;
+        try {
+            const response = await fetch(READ_ALL_URL);
+            if (response.ok) {
+                const resJson = await response.json();
+                allData = resJson.reply || resJson;
+                cachedPLCData = Object.assign({}, cachedPLCData, allData); 
+            }
+        } catch (err) {
+            console.log("ALL API request failed, falling back to single API...");
+        }
+
+        for (const ctrl of controllers) {
+            const rawVal = allData ? allData[ctrl.param] : undefined;
+
+            if (rawVal !== undefined && rawVal !== null && !isNaN(rawVal)) {
+                const valFromPLC = Number(rawVal) / 10;
+                ctrl.original = valFromPLC;
+                
+                if (!confirmBar.classList.contains('show')) {
+                    ctrl.current = valFromPLC;
+                    ctrl.display.textContent = `${valFromPLC.toFixed(1)} sec`;
+                }
+            } else {
+                await fetchSingleParamData(ctrl);
+            }
+        }
+
+        updateUPH();
+        checkChanges();
+    }
+
+    // Reset button logic
+    if (resetBtn) {
+        resetBtn.addEventListener('click', async () => {
+            if (!confirm("Are you sure you want to send the reset command?")) return;
+
+            try {
+                const payload = {
+                    "param": "RESET_ALL_TIMERELAY",
+                    "value": true
+                };
+
+                const response = await fetch(WRITE_M_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert("Reset command sent successfully!");
+                    fetchLatestData();
+                } else {
+                    const errText = await response.text();
+                    alert(`Reset failed (${response.status}): ${errText}`);
+                }
+            } catch (err) {
+                console.error("Failed to send reset request:", err);
+                alert(`Connection failed: ${err.message}`);
+            }
+        });
+    }
+
+    // Save (SET) logic
+    confirmBtn.addEventListener('click', async () => {
+        const changedItems = controllers.filter(c => c.current !== null && c.current !== c.original);
+        if (changedItems.length === 0) return;
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Writing...";
+
+        try {
+            const requests = changedItems.map(item => {
+                const payload = {
+                    param: item.param,
+                    value: Math.round(item.current * 10)
+                };
+                return fetch(WRITE_D_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            });
+
+            const responses = await Promise.all(requests);
+            const allSuccess = responses.every(r => r.ok);
+
+            if (allSuccess) {
+                alert("PLC updated successfully!");
+                changedItems.forEach(c => {
+                    c.commit();
+                    cachedPLCData[c.param] = c.original * 10;
+                });
+                updateUPH();
+                checkChanges();
+            } else {
+                throw new Error("Failed to write some parameters");
+            }
+        } catch (err) {
+            alert(`Update failed: ${err.message}`);
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Confirm Save (SET)";
+        }
+    });
+
+    // Initial data fetch on load and start polling
+    fetchLatestData();
+    setInterval(fetchLatestData, 2000); 
+});

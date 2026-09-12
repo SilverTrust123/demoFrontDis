@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作介面</title>
+
+    <link rel="stylesheet" href="../css/control2.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- ===== Header ===== -->
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">操作介面</h1>
+
+            <nav class="nav-menu">
+                
+                <!-- 1. 主頁 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">主頁</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">機台監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">戰情室</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. 生產線 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn">生產線</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">影像監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">生產線偵測</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">虛擬模型</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">產線穩定性</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">設備導覽</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">感測器分佈圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">感測器內容</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. 操作介面 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn active-tab">操作介面</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">操作介面</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">模型模擬</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. 歷史資料 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">歷史資料</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">歷史折線圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">感測器歷史查詢</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log歷史呈現</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">報表下載</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">excel</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. 其他 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">其他</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">預測今日產出</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">交接事項</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">後端狀況</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">碳足跡</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+
+        <div class="header-divider"></div>
+    </header>
+
+<main class="content-wrapper">
+
+    <!-- ===== 左側設備控制區 ===== -->
+    <section class="control-section">
+
+        <div class="machine-menu">
+            <a href="control.html" class="menu-item">
+                <img src="../picture/transfer.png">
+            </a>
+            <a href="control2.html" class="menu-item active">
+                <img src="../picture/dragondoor.png">
+            </a>
+            <a href="control3.html" class="menu-item">
+                <img src="../picture/transfer2.png">
+            </a>
+            <a href="control4.html" class="menu-item">
+                <img src="../picture/rotate.png">
+            </a>
+            <a href="control5.html" class="menu-item">
+                <img src="../picture/nonmetal.png">
+            </a>
+            <a href="javascript:void(0)" id="reset-btn" class="menu-item">
+                <img src="../picture/reset.png" alt="重置">
+            </a>
+        </div>
+
+        <!-- 設備圖片區塊 -->
+        <div class="machine-panel">
+            <div class="machine-title">龍門機械臂</div>
+            <div class="machine-image">
+                <img src="../picture/machine1-1.png">
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 右側控制看板 ===== -->
+    <section class="control-board">
+        <div class="board-bg">
+            <img src="../picture/monitor.png">
+        </div>
+
+        <div class="board-content">
+            <!-- ⚡ 綠色產能標籤 (僅顯示金屬產量) -->
+            <div class="uph-badge">目前每小時產量 : <span id="current-uph">--</span></div>
+
+            <!-- 第 1 頁 (前 3 項) -->
+            <div class="func-group">
+                <div class="control-row">
+                    <div class="control-label">機械臂向下等待時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <div class="control-label">機械臂確保向下時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <div class="control-label">夾取工件等待時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第 2 頁 (後 4 項) -->
+            <div class="func-group" style="display: none;">
+                <div class="control-row">
+                    <div class="control-label">機械臂到左側停止時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <div class="control-label">機械臂向下後停止時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <div class="control-label">放開工件後等待時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <div class="control-label">機械臂向上停止時間</div>
+                    <div class="control-adjust">
+                        <button>-</button>
+                        <div class="time-box">-- sec</div>
+                        <button>+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="nextPageBtn" class="arrow-btn next" title="下一頁">
+                <img src="../picture/blue_arrow_right.png" alt="Next">
+            </div>
+        </div>
+        
+        <!-- ⚡ 底部浮動儲存條，僅顯示金屬預期產能 -->
+        <div class="floating-confirm-bar" id="save-bar">
+            <div class="confirm-text">
+                數值已變更&nbsp;&nbsp;預期產能 ➔ <span id="new-uph" style="color: #00ff88; font-size: 18px; font-weight:bold;">--</span>
+            </div>
+            <button class="confirm-btn" id="save-btn">確認儲存 (SET)</button>
+        </div>
+        
+    </section>
+
+</main>
+</div>
+<script src="../js/global.js"></script>
+<script src="../js/control2.js"></script>
+</body>
+</html>

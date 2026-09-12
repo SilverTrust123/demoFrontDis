@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLC Sensor Rate-Limited Polling Controller (Continuous High-Frequency Distribution)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 950px;
+      margin: 20px auto;
+      padding: 0 15px;
+      background: #f4f6f9;
+      color: #333;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 15px;
+    }
+    .control-panel {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    label { font-weight: bold; }
+    input[type="number"] {
+      width: 90px;
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-start { background: #28a745; color: white; }
+    .btn-start:hover { background: #218838; }
+    .btn-stop { background: #dc3545; color: white; }
+    .btn-stop:hover { background: #c82333; }
+    .btn-secondary { background: #6c757d; color: white; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+
+    .status-bar {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      flex-wrap: wrap;
+    }
+    .status-badge {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    .running { background: #d4edda; color: #155724; }
+    .stopped { background: #e2e3e5; color: #383d41; }
+    .exited { background: #f8d7da; color: #721c24; font-weight: bold; }
+
+    .log-container {
+      background: #1e1e1e;
+      color: #33ff33;
+      font-family: "Courier New", Courier, monospace;
+      padding: 15px;
+      border-radius: 6px;
+      height: 450px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .log-entry { margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+    .log-time { color: #888; }
+    .log-estop { color: #ff4d4d; font-weight: bold; }
+    .log-exit { color: #ffcc00; font-weight: bold; }
+    .log-error { color: #ff6666; }
+  </style>
+</head>
+<body>
+
+  <h2>PLC 感測器高頻輪詢控制器 (純輪詢測試)</h2>
+
+  <div class="card">
+    <div class="control-panel">
+      <div>
+        <label for="ratePerSec">每秒執行次數 (RPS):</label>
+        <input type="number" id="ratePerSec" value="1000" min="1" max="10000" step="10"> 次/秒
+      </div>
+      <div>
+        <label for="totalLoops">執行迴圈數:</label>
+        <input type="number" id="totalLoops" value="200" min="1" step="1"> 次
+      </div>
+      <div>
+        <label for="interval">迴圈間隔:</label>
+        <input type="number" id="interval" value="0" min="0" step="0.1"> 秒
+      </div>
+      <button id="startBtn" class="btn-start" onclick="startPolling()">開始執行勻速多迴圈測試</button>
+      <button id="stopBtn" class="btn-stop" onclick="stopPolling('手動中斷')" disabled>手動中斷</button>
+      <button class="btn-secondary" onclick="clearLogs()">清除日誌</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="status-bar">
+      <div>系統狀態: <span id="statusBadge" class="status-badge stopped">已停止</span></div>
+      <div>迴圈進度: <span id="currentLoopUI">0</span> / <span id="totalLoopsUI">200</span></div>
+      <div>當前迴圈進度: <span id="stepCount">0</span> / <span id="targetStepsUI">1000</span></div>
+      <div>單次 Loop 發送耗時: <span id="timeElapsed">0</span> ms</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="log-container" id="logBox">
+      <div class="log-entry log-time">// 系統就緒。設定每秒執行次數與迴圈數後點擊「開始執行」...</div>
+    </div>
+  </div>
+
+  <script>
+    const SENSOR_URL = 'http://192.168.3.85:9090/allData/allSenosrData';
+
+    let isRunning = false;
+    let loopTimerId = null;
+
+    let currentLoop = 0;
+    let targetTotalLoops = 200;
+
+    // 單次 Sensor 讀取請求 (加上 AbortController 避免超時請求塞滿瀏覽器連線池)
+    async function fetchSensorData(index) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 800);
+
+      try {
+        const res = await fetch(SENSOR_URL, { 
+          cache: 'no-store',
+          signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+        return { index, status: res.status, ok: res.ok };
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return { index, status: 'ERROR', ok: false, error: err.message };
+      }
+    }
+
+    // 延遲函式
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // 執行單一輪勻速發送 (無縫接軌、不阻塞下一次 Loop 的啟動)
+    async function runSingleUniformLoop() {
+      if (!isRunning) return;
+
+      currentLoop++;
+      updateUIStats();
+
+      const TOTAL_STEPS = parseInt(document.getElementById('ratePerSec').value, 10) || 1000;
+      document.getElementById('targetStepsUI').textContent = TOTAL_STEPS;
+
+      const startTime = performance.now();
+      const timestamp = new Date().toLocaleTimeString();
+      appendLog(`[${timestamp}] --- 開始執行 Loop ${currentLoop}/${targetTotalLoops} (${TOTAL_STEPS} 次高頻輪詢) ---`);
+
+      const DURATION_MS = 1000;
+      const STEP_INTERVAL = DURATION_MS / TOTAL_STEPS;
+
+      const sensorPromises = [];
+
+      for (let step = 1; step <= TOTAL_STEPS; step++) {
+        if (!isRunning) break;
+
+        sensorPromises.push(fetchSensorData(step));
+
+        // 更新 UI 介面
+        if (step % 20 === 0 || step === TOTAL_STEPS) {
+          document.getElementById('stepCount').textContent = step;
+          document.getElementById('timeElapsed').textContent = Math.round(performance.now() - startTime);
+        }
+
+        const expectedNextTime = startTime + (step * STEP_INTERVAL);
+        const delay = expectedNextTime - performance.now();
+        if (delay > 0) {
+          await sleep(delay);
+        }
+      }
+
+      if (!isRunning) return;
+
+      const loopCompletedTime = Math.round(performance.now() - startTime);
+      const thisLoopIndex = currentLoop;
+
+      // 背景非同步 Promise 統計處理，不阻塞執行序
+      Promise.all(sensorPromises).then(results => {
+        const successCount = results.filter(r => r.ok).length;
+        const failCount = results.length - successCount;
+        appendLog(`[${new Date().toLocaleTimeString()}] [Loop ${thisLoopIndex}] 背景統計完成 (成功: ${successCount}, 失敗/超時: ${failCount}, 發送耗時: ${loopCompletedTime}ms)`);
+      });
+
+      // 立刻啟動下一個 Loop
+      if (currentLoop < targetTotalLoops) {
+        if (isRunning) {
+          const intervalSec = parseFloat(document.getElementById('interval').value) || 0;
+          if (intervalSec === 0) {
+            runSingleUniformLoop();
+          } else {
+            loopTimerId = setTimeout(runSingleUniformLoop, intervalSec * 1000);
+          }
+        }
+      } else {
+        exitProcess(`成功完成全部 ${targetTotalLoops} 次高頻測試！`);
+      }
+    }
+
+    function startPolling() {
+      if (isRunning) return;
+
+      targetTotalLoops = parseInt(document.getElementById('totalLoops').value, 10) || 1;
+      const ratePerSec = parseInt(document.getElementById('ratePerSec').value, 10) || 1000;
+      
+      isRunning = true;
+      currentLoop = 0;
+      updateUIStats();
+
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+      document.getElementById('ratePerSec').disabled = true;
+      document.getElementById('totalLoops').disabled = true;
+      document.getElementById('interval').disabled = true;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = "高頻連續測試中...";
+      badge.className = "status-badge running";
+
+      appendLog(`[${new Date().toLocaleTimeString()}] 開始無縫高頻測試：預計執行 ${targetTotalLoops} 次迴圈 (目標每秒 ${ratePerSec} 次)...`);
+      runSingleUniformLoop();
+    }
+
+    function stopPolling(reason = '手動中斷') {
+      isRunning = false;
+      if (loopTimerId) clearTimeout(loopTimerId);
+
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('ratePerSec').disabled = false;
+      document.getElementById('totalLoops').disabled = false;
+      document.getElementById('interval').disabled = false;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = "已停止";
+      badge.className = "status-badge stopped";
+
+      appendLog(`[${new Date().toLocaleTimeString()}] 測試已中斷 (${reason})`);
+    }
+
+    function exitProcess(reason) {
+      isRunning = false;
+      if (loopTimerId) clearTimeout(loopTimerId);
+
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('ratePerSec').disabled = false;
+      document.getElementById('totalLoops').disabled = false;
+      document.getElementById('interval').disabled = false;
+
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = "EXIT (已完成測試)";
+      badge.className = "status-badge exited";
+
+      appendLog(`--------------------------------------------------`);
+      appendLog(`[${new Date().toLocaleTimeString()}] [EXIT] 流程終止: ${reason}`, 'log-exit');
+      appendLog(`--------------------------------------------------`);
+    }
+
+    function appendLog(message, className = '') {
+      const logBox = document.getElementById('logBox');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${className}`;
+      entry.textContent = message;
+      logBox.appendChild(entry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function updateUIStats() {
+      document.getElementById('currentLoopUI').textContent = currentLoop;
+      document.getElementById('totalLoopsUI').textContent = targetTotalLoops;
+      document.getElementById('stepCount').textContent = 0;
+    }
+
+    function clearLogs() {
+      document.getElementById('logBox').innerHTML = '<div class="log-entry log-time">// 日誌已清除</div>';
+      document.getElementById('stepCount').textContent = 0;
+      document.getElementById('timeElapsed').textContent = 0;
+    }
+  </script>
+</body>
+</html>

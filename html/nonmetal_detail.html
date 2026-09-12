@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非金屬產線穩定性</title>
+    
+    <link rel="stylesheet" href="../css/productsta.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/global.js"></script> 
+    
+    <style>
+        /* ===== 戰情室專屬版面設定 ===== */
+        .content-wrapper {
+            display: flex;
+            background: rgba(255, 255, 255, 0.4);
+            margin: 0 40px 20px 40px;
+            border-radius: 12px;
+            padding: 25px;
+            min-height: 600px;
+            align-items: stretch;
+        }
+
+        .detail-wrapper {
+            display: flex;
+            width: 100%;
+            gap: 25px;
+            position: relative;
+        }
+
+        /* --- 左側薄荷綠儀表板本體 --- */
+        .left-info-card {
+            width: 340px;
+            background: #6FA8A8; 
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* 上方機台展示區 */
+        .card-top-section {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px 10px;
+            height: 200px;
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 26px;
+            font-weight: 900;
+            color: #1a1a1a;
+            letter-spacing: 10px;
+            margin-right: 10px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.4);
+        }
+
+        /* 圖片背後的獨立最上層純白底板 */
+        .image-container {
+            flex: 1;
+            height: 100%;
+            background: #ffffff; 
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            z-index: 2; 
+            position: relative;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: multiply; 
+        }
+
+        /* 下方數據顯示區 */
+        .card-bottom-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-label {
+            font-size: 19px;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #00ff88; 
+            text-align: center;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .tolerance-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 差距設定輸入框 */
+        .tolerance-input {
+            width: 80px;
+            background: transparent;
+            border: none;
+            color: #ff3b3b; 
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .tolerance-input:disabled {
+            cursor: not-allowed;
+            color: #ff3b3b;
+            opacity: 0.9;
+        }
+
+        .percent-sign {
+            font-size: 26px;
+            color: #ff3b3b;
+            font-weight: bold;
+            margin-left: 2px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* --- 右側趨勢圖表區 --- */
+        .chart-area {
+            flex: 1;
+            background: #f8fcfc;
+            border-radius: 20px;
+            padding: 30px 40px;
+            position: relative;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            border: 2px solid #daecec;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">產線穩定性</h1>
+
+            <nav class="nav-menu">
+                
+                <!-- 1. 主頁 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">主頁</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">機台監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">戰情室</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. 生產線 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn active-tab">生產線</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">影像監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">生產線偵測</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">虛擬模型</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">產線穩定性</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">設備導覽</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">感測器分佈圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">感測器內容</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. 操作介面 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">操作介面</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">操作介面</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">模型模擬</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. 歷史資料 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">歷史資料</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">歷史折線圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">感測器歷史查詢</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log歷史呈現</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">報表下載</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">excel</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. 其他 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">其他</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">預測今日產出</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">交接事項</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">後端狀況</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">碳足跡</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="content-wrapper">
+        <div class="detail-wrapper">
+            
+            <!-- ===== 左側整合式儀表板 ===== -->
+            <div class="left-info-card">
+                <div class="card-top-section">
+                    <div class="vertical-text">非金屬產線</div>
+                    <div class="image-container">
+                        <img src="../picture/nonmetalline.png" alt="非金屬產線機台">
+                    </div>
+                </div>
+
+                <div class="card-bottom-section">
+                    <div class="stat-row">
+                        <span class="stat-label" id="cycle-count-label">第 1 輪時間：</span>
+                        <span class="stat-value" id="current-cycle-time">00:00</span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">正常作業時間：</span>
+                        <span class="stat-value" id="standard-cycle-time">11.51s</span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">差距設定：</span>
+                        <div class="tolerance-wrapper">
+                            <input type="number" id="tolerance-input" class="tolerance-input" value="10" min="0" max="100">
+                            <span class="percent-sign">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 右側折線圖區域 ===== -->
+            <div class="chart-area">
+                <a href="productsta.html" class="back-btn" title="返回">
+                    <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 10C9 8.89543 9.89543 8 11 8H18C19.1046 8 20 8.89543 20 10V16" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 11L9 8L12 5" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                
+                <div class="chart-container">
+                    <canvas id="detailChart"></canvas>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+</div>
+
+<script>
+    // --- 1. 權限與差距設定邏輯 ---
+    const toleranceInput = document.getElementById('tolerance-input');
+    const TOLERANCE_KEY = 'PLC_TIME_TOLERANCE';
+
+    const savedTolerance = localStorage.getItem(TOLERANCE_KEY) || 10;
+    toleranceInput.value = savedTolerance;
+
+    function checkPermissionForTolerance() {
+        const token = localStorage.getItem('admin_token'); 
+        if (token) {
+            toleranceInput.disabled = false;
+        } else {
+            toleranceInput.disabled = true;
+        }
+    }
+
+    toleranceInput.addEventListener('change', (e) => {
+        let val = parseFloat(e.target.value);
+        if (val < 0) val = 0;
+        localStorage.setItem(TOLERANCE_KEY, val);
+    });
+
+    checkPermissionForTolerance();
+    setInterval(checkPermissionForTolerance, 1000);
+
+
+    // --- 2. Chart.js 客製化插件 (畫出紅色垂直連接線) ---
+    const gapLinePlugin = {
+        id: 'gapLinePlugin',
+        beforeDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            const metaActual = chart.getDatasetMeta(0); 
+            const metaStd = chart.getDatasetMeta(1);    
+
+            ctx.save();
+            ctx.strokeStyle = '#ff4d4d'; 
+            ctx.lineWidth = 1.5;
+
+            metaActual.data.forEach((pointActual, index) => {
+                const pointStd = metaStd.data[index];
+                const actualValue = data.datasets[0].data[index];
+                
+                if (actualValue !== null && pointActual && pointStd) {
+                    ctx.beginPath();
+                    ctx.moveTo(pointActual.x, pointActual.y);
+                    ctx.lineTo(pointStd.x, pointStd.y);
+                    ctx.stroke();
+                }
+            });
+            ctx.restore();
+        }
+    };
+    Chart.register(gapLinePlugin);
+
+
+    // --- 3. 圖表初始化與標準時間對照表 (非金屬產線 S30~S37) ---
+    const ctx = document.getElementById('detailChart').getContext('2d');
+    
+    const standardTimesDict = {
+        30: 2.064, 
+        31: 0.792, 
+        32: 1.774, 
+        33: 2.002, 
+        34: 0.894, 
+        35: 0.570, 
+        36: 0.960, 
+        37: 1.452
+    };
+
+    const stepIndexMap = {
+        30: 0, 31: 1, 32: 2, 33: 3, 34: 4, 35: 5, 36: 6, 37: 7
+    };
+
+    let actualTimesData = new Array(8).fill(null);
+
+    const detailChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['S30', 'S31', 'S32', 'S33', 'S34', 'S35', 'S36', 'S37'],
+            datasets: [
+                {
+                    label: '實際時間',
+                    data: actualTimesData,
+                    borderColor: '#333333',
+                    backgroundColor: '#333333',
+                    pointBackgroundColor: '#333333',
+                    pointRadius: 5,
+                    borderWidth: 2,
+                    tension: 0, 
+                    spanGaps: true 
+                },
+                {
+                    label: '標準時間',
+                    data: Object.values(standardTimesDict), 
+                    borderColor: '#4ade80',
+                    backgroundColor: '#4ade80',
+                    pointBackgroundColor: '#4ade80',
+                    pointRadius: 5,
+                    borderWidth: 2,
+                    tension: 0 
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: { top: 20, right: 30 }
+            },
+            scales: {
+                y: { 
+                    title: { display: true, text: '時間 (秒)', align: 'end', font: { size: 16, weight: 'bold' } }, 
+                    min: 0,
+                    grid: { color: '#e0e0e0' }
+                },
+                x: { 
+                    title: { display: true, text: '步驟', align: 'end', font: { size: 16, weight: 'bold' } },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            }
+        }
+    });
+
+
+    // --- 4. API 抓取、嚴謹 S50 急停攔截與輪次計算 ---
+    let currentStep = null;
+    let stepStartTime = null;
+    let cycleStartTime = null;
+    let cycleCount = 1;
+    let hasCompletedFullCycle = false; 
+    let lastElapsedSeconds = "00:00"; // 記錄急停當下的秒數，讓它凍結
+    const POLLING_INTERVAL = 200; 
+
+    function updateLiveTimer() {
+        if (cycleStartTime !== null && currentStep !== 50) {
+            const now = performance.now();
+            lastElapsedSeconds = ((now - cycleStartTime) / 1000).toFixed(2);
+        }
+        // 如果是 S50，畫面直接顯示最後凍結的秒數，不再往上加
+        document.getElementById('current-cycle-time').innerText = `${lastElapsedSeconds}s`;
+        requestAnimationFrame(updateLiveTimer);
+    }
+    requestAnimationFrame(updateLiveTimer);
+
+    async function fetchPlcState() {
+        try {
+            const response = await fetch('http://192.168.3.85:9090/plc/state');
+            if (!response.ok) throw new Error('網路回應錯誤');
+            
+            const resJson = await response.json();
+            
+            // ⚡ 嚴格解析 API 格式（支援 { reply: "50" } 或是 { state: 50 } 或是直接回傳字串/數字）
+            let rawState = resJson;
+            if (resJson && typeof resJson === 'object') {
+                rawState = resJson.state !== undefined ? resJson.state : (resJson.reply !== undefined ? resJson.reply : null);
+            }
+            const newStep = parseInt(rawState, 10);
+
+            if (isNaN(newStep)) return;
+
+            // ⚡ 如果當前狀態是 S50 (急停)，強制中斷計時與狀態推進
+            if (newStep === 50) {
+                currentStep = 50;
+                document.getElementById('current-cycle-time').style.color = "#ff4d4d"; // 變成警告紅代表暫停
+                return;
+            } else {
+                document.getElementById('current-cycle-time').style.color = "#00ff88"; // 恢復正常螢光綠
+            }
+
+            if (newStep !== currentStep) {
+                const now = performance.now(); 
+
+                // S30 為非金屬產線的起始步驟，S37 為結束步驟
+                if (newStep === 30) {
+                    if (currentStep === 37) {
+                        hasCompletedFullCycle = true;
+                    }
+
+                    if (hasCompletedFullCycle) {
+                        cycleCount++;
+                        document.getElementById('cycle-count-label').innerText = `第 ${cycleCount} 輪時間：`;
+                        hasCompletedFullCycle = false; 
+                    }
+                    
+                    cycleStartTime = now; 
+                    actualTimesData.fill(null); 
+                    detailChart.update();
+                } else if (cycleStartTime === null) {
+                    cycleStartTime = now;
+                }
+
+                if (currentStep !== null && currentStep !== 50 && stepStartTime !== null) {
+                    const timeDiffSeconds = parseFloat(((now - stepStartTime) / 1000).toFixed(2));
+                    
+                    const dataIndex = stepIndexMap[currentStep];
+                    if (dataIndex !== undefined) {
+                        actualTimesData[dataIndex] = timeDiffSeconds;
+                        detailChart.update();
+                    }
+
+                    const stdTime = standardTimesDict[currentStep];
+                    if (stdTime) {
+                        const tolerancePercent = parseFloat(localStorage.getItem(TOLERANCE_KEY) || 10);
+                        const toleranceRatio = tolerancePercent / 100;
+                        
+                        const minAllowed = stdTime * (1 - toleranceRatio);
+                        const maxAllowed = stdTime * (1 + toleranceRatio);
+
+                        if (timeDiffSeconds < minAllowed || timeDiffSeconds > maxAllowed) {
+                            if (typeof window.showError === 'function') {
+                                window.showError(`警告：生產步驟 [S${currentStep}] 執行時間異常！\n標準時間: ${stdTime}秒\n實際時間: ${timeDiffSeconds}秒\n(差距設定範圍: ±${tolerancePercent}%)`);
+                            }
+                        }
+                    }
+                }
+
+                currentStep = newStep;
+                stepStartTime = now;
+            }
+
+        } catch (error) {
+            console.error('獲取 PLC 狀態失敗:', error);
+        }
+    }
+
+    setInterval(fetchPlcState, POLLING_INTERVAL);
+
+</script>
+</body>
+</html>

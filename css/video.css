@@ -1,0 +1,130 @@
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    background: rgba(255, 255, 255, 0.6);
+    /* 將原本的 60px 縮小為 20px (或根據喜好調整) */
+    margin: 10px 60px 15px 60px; 
+    max-height: calc(100vh - 140px); 
+    overflow: hidden;
+    border-radius: 0px; /* 確保有圓角比較好看 */
+}
+/* ===== 影像監控頁面專屬版面 ===== */
+.video-content-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+/* 左側影像預覽區 */
+.video-left-pane {
+    flex: 1.6;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* 按鈕群組 (畫面顯示 / 畫面關閉) */
+.video-controls-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+    z-index: 5;
+}
+
+.vid-action-btn {
+    width: 110px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    transition: transform 0.1s, filter 0.2s;
+    text-align: center;
+}
+
+.vid-action-btn:active {
+    transform: scale(0.95);
+}
+
+.btn-show {
+    background-color: #3498db; /* 藍色顯示按鈕 */
+}
+.btn-show:hover {
+    background-color: #2980b9;
+}
+
+.btn-hide {
+    background-color: #2c3e50; /* 深色關閉按鈕 */
+}
+.btn-hide:hover {
+    background-color: #1a252f;
+}
+
+/* 影像顯示外框容器 */
+.video-display-box {
+    flex: 1;
+    background: #a0a0a0; /* 模擬圖1的灰色未啟動畫面背景 */
+    border: 2px solid #555;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 420px;
+}
+
+/* 串流影像本體 */
+.video-display-box img {
+    max-width: 100%;   
+    max-height: 100%;  
+    object-fit: contain; 
+    
+    /* ⚡ 加上這兩行來強制置頂 */
+    align-self: flex-start; /* 突破外層的垂直置中，把整個 img 元素推到最上面 */
+    object-position: top;   /* 確保影片內容在 img 範圍內也是貼齊頂部 */
+    display: none;
+}
+
+.video-placeholder-text {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* 右側紀錄面板 (仿筆記紙張疊影風格) */
+.video-right-pane {
+    flex: 1;
+    background: #ffffff;
+    border: 2px solid #444;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.2), 8px 8px 0px #ccc; /* 製造紙張疊影感 */
+    overflow-y: auto;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: auto auto;
+}
+
+.log-entry {
+    font-size: 50px;
+    line-height: 1.6;
+    color: #000;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    border-bottom: 1px dashed #bbb;
+    padding-bottom: 12px;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}

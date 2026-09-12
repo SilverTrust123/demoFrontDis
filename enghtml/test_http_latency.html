@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Communication Time and Polling Test</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #00adb5;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="number"] {
+            background: #2b2b2b;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input[type="text"] { flex-grow: 1; }
+        input[type="number"] { width: 80px; }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-start { background-color: var(--success-color); color: white; }
+        .btn-start:hover { background-color: #27ae60; }
+        .btn-stop { background-color: var(--error-color); color: white; }
+        .btn-stop:hover { background-color: #c0392b; }
+        .btn-clear { background-color: #7f8c8d; color: white; }
+        .btn-clear:hover { background-color: #95a5a6; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-top: 5px;
+        }
+
+        .log-container {
+            height: 350px;
+            overflow-y: auto;
+            background: #0d0d0d;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column-reverse; /* 最新日誌在最上面 */
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px dashed #222;
+            word-break: break-all;
+        }
+
+        .log-success { color: var(--success-color); }
+        .log-error { color: var(--error-color); }
+        .time-badge { color: #f1c40f; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PLC HTTP Polling and Latency Testing</h1>
+
+    <!-- 控制區域 -->
+    <div class="card">
+        <div class="controls">
+            <label for="apiUrl">Target URL:</label>
+            <input type="text" id="apiUrl" value="http://192.168.3.85:9090/plc/test">
+            
+            <label for="interval">polling interval (ms):</label>
+            <input type="number" id="interval" value="1000" min="100">
+
+            <button id="btnToggle" class="btn-start" onclick="togglePolling()">Start testing</button>
+            <button class="btn-clear" onclick="clearLogs()">Clear history</button>
+        </div>
+    </div>
+
+    <!-- 數據統計區 -->
+    <div class="card">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div>Total number of requests</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Latest duration</div>
+                <div class="stat-value" id="statLast">0 ms</div>
+            </div>
+            <div class="stat-box">
+                <div>Average time taken</div>
+                <div class="stat-value" id="statAvg">0 ms</div>
+            </div>
+            <div class="stat-box">
+                <div>Minimum / Maximum duration</div>
+                <div class="stat-value" id="statMinMax">0 / 0 ms</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日誌輸出區 -->
+    <div class="card">
+        <h3>Real-time Response Log (Latest first)</h3>
+        <div class="log-container" id="logBox"></div>
+    </div>
+</div>
+
+<script>
+    let isPolling = false;
+    let timerId = null;
+    let totalRequests = 0;
+    let totalTime = 0;
+    let minTime = Infinity;
+    let maxTime = 0;
+
+    async function sendRequest() {
+        const url = document.getElementById('apiUrl').value.trim();
+        const logBox = document.getElementById('logBox');
+        
+        // 記錄發送前的高精度時間點
+        const startTime = performance.now();
+        const timestamp = new Date().toLocaleTimeString('zh-TW', { hour12: false }) + '.' + String(new Date().getMilliseconds()).padStart(3, '0');
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                // 如果需要避免瀏覽器快取數據，可以取消下方註解：
+                // cache: 'no-store'
+            });
+
+            // 記錄收到回應的時間點
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2); // 保留小數點後兩位
+
+            const textData = await response.text();
+
+            if (response.ok) {
+                updateStats(parseFloat(duration));
+                addLog(`[${timestamp}] Success (${response.status}) - 耗時: <span class="time-badge">${duration} ms</span> | 回傳: ${escapeHtml(textData)}`, 'log-success');
+            } else {
+                addLog(`[${timestamp}] Error (${response.status}) - 耗時: <span class="time-badge">${duration} ms</span> | 內容: ${escapeHtml(textData)}`, 'log-error');
+            }
+        } catch (error) {
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            addLog(`[${timestamp}] Network Error - 耗時: <span class="time-badge">${duration} ms</span> | 訊息: ${error.message}`, 'log-error');
+        }
+    }
+
+    function updateStats(duration) {
+        totalRequests++;
+        totalTime += duration;
+        if (duration < minTime) minTime = duration;
+        if (duration > maxTime) maxTime = duration;
+
+        const avgTime = (totalTime / totalRequests).toFixed(2);
+
+        document.getElementById('statTotal').innerText = totalRequests;
+        document.getElementById('statLast').innerText = `${duration} ms`;
+        document.getElementById('statAvg').innerText = `${avgTime} ms`;
+        document.getElementById('statMinMax').innerText = `${minTime} / ${maxTime} ms`;
+    }
+
+    function togglePolling() {
+        const btn = document.getElementById('btnToggle');
+        const intervalInput = document.getElementById('interval');
+
+        if (isPolling) {
+            // 停止輪詢
+            clearInterval(timerId);
+            timerId = null;
+            isPolling = false;
+            btn.innerText = "開始測試";
+            btn.className = "btn-start";
+            intervalInput.disabled = false;
+        } else {
+            // 開始輪詢
+            const interval = parseInt(intervalInput.value, 10) || 1000;
+            isPolling = true;
+            btn.innerText = "停止測試";
+            btn.className = "btn-stop";
+            intervalInput.disabled = true;
+
+            // 立即執行一次，接著按設定間隔輪詢
+            sendRequest();
+            timerId = setInterval(sendRequest, interval);
+        }
+    }
+
+    function addLog(message, className) {
+        const logBox = document.getElementById('logBox');
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${className}`;
+        entry.innerHTML = message;
+        
+        // 保持日誌數量上限為 100 筆，避免瀏覽器卡頓
+        if (logBox.children.length >= 100) {
+            logBox.removeChild(logBox.lastChild);
+        }
+        
+        logBox.insertBefore(entry, logBox.firstChild);
+    }
+
+    function clearLogs() {
+        document.getElementById('logBox').innerHTML = '';
+        totalRequests = 0;
+        totalTime = 0;
+        minTime = Infinity;
+        maxTime = 0;
+        document.getElementById('statTotal').innerText = '0';
+        document.getElementById('statLast').innerText = '0 ms';
+        document.getElementById('statAvg').innerText = '0 ms';
+        document.getElementById('statMinMax').innerText = '0 / 0 ms';
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+                   .replace(/"/g, "&quot;")
+                   .replace(/'/g, "&#039;");
+    }
+</script>
+
+</body>
+</html>

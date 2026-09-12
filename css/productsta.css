@@ -1,0 +1,145 @@
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: row !important;
+    background: rgba(255, 255, 255, 0.7); 
+    margin: 10px 60px 15px 60px; 
+    padding: 30px 60px;
+    max-height: calc(100vh - 140px); 
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    gap:40px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+/* ===== Header ===== */
+.brand-logo {
+    font-family: "Microsoft JhengHei", sans-serif; /* 改用較硬的黑體 */
+    font-size: 50px; /* 稍微縮小一點點更精緻 */
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 2px; /* 圖二的字距似乎稍微開一點 */
+    padding: 10px;  
+    text-shadow: 6px 6px 6px rgba(0, 0, 0, 0.5); /* 陰影變淡、變細 */
+    margin-left:20px;
+}
+/* 1. 外層卡片 (淺莫蘭迪綠) */
+.stability-card {
+    flex: 1;
+    border-radius: 30px;
+    display: flex;
+    padding: 25px; /* 外層內距 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.non-metal-standalone {
+    flex: 1;
+    display: flex; /* 讓文字標籤與內容並排 */
+    padding: 0;    /* 移除外圍 padding */
+    background: transparent; /* 確保沒有背景色 */
+}
+
+/* 2. 直排文字 (深色，粗體) */
+/* 2. 直排文字 (修正英文直排錯位問題) */
+.vertical-text {
+    writing-mode: vertical-lr; /* 改為由上至下的直排順序 */
+    text-orientation: mixed;   /* 讓英文字母順暢旋轉 90 度顯示，不會拆成兩欄 */
+    font-size: 2.5rem;          /* 稍微縮小字級，避免字體過大撐開容器 */
+    font-weight: 900;          /* 超粗體 */
+    letter-spacing: 2px;        /* 縮小字距 (原 15px 過大容易導致換列) */
+    color: #2F4F4F;            /* 深色 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 15px;       /* 文字與內卡片的間距 */
+    white-space: nowrap;        /* 強制不換行 */
+}
+
+/* 3. 內層深色卡片 (關鍵修正) */
+.card-inner {
+    flex: 1;
+    background-color: #5F8D91; /* ✨ 精準還原內層深色 */
+    border-radius: 25px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 2px solid #A3C9CB; /* ✨ 內卡片細邊框 */
+}
+
+/* 4. 圖片區域 (實心深綠背景 + 邊框) */
+.image-section {
+    flex: 1.3; /* 圖片區佔比稍微大一點 */
+    background-color: #8dc0c5; /* 確保背景色一致 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 2px solid #A3C9CB; /* ✨ 圖片下方的細邊框 */
+}
+
+.image-section img {
+    max-width: 90%;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+/* 5. 數據數據區域 */
+.data-section {
+    flex: 1.2;
+    color: rgb(48, 219, 219);
+    font-family: 'Arial', sans-serif; /* 產線標題用無襯線體 */
+}
+
+.stat-title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 10px 0 5px 0;
+    color: #333; /* 標題是深色的，非白色 */
+}
+
+.stat-value {
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace; /* 時間數值用等寬體 */
+}
+.avg-time-box {
+    background-color: #66afb3; /* ✨ 參考圖二的淺青綠色背景 */
+    padding: 10px 15px;
+    margin-bottom: 15px;       /* 與下方「第*圈時間」的間距 */
+    text-align: center;
+}
+
+/* 調整標題在 box 內的間距 */
+.avg-time-box .stat-title {
+    margin-top: 0;
+    color: #2F4F4F;            /* 調整為較深的文字顏色以利閱讀 */
+}
+
+/* 調整數值在 box 內的間距 */
+.avg-time-box .stat-value {
+    margin-bottom: 0;          /* 移除原本底部的 margin */
+}
+/* 6. 綠色發光文字 */
+.highlight-green {
+    color: #00FF00; /* 螢光綠 */
+    text-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
+}
+
+/* 7. 歷史圈數列表 (顏色修正) */
+.cycle-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 1.4rem;
+    font-family: 'Courier New', monospace; /* 列表也用等寬體 */
+}
+
+.cycle-list li {
+    margin-bottom: 8px;
+    color: #00FFFF; /* ✨ 關鍵修正：改為淺青色 (Cyan) */
+}
