@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metal Line Stability - Detailed Analysis</title>
+    
+    <link rel="stylesheet" href="../css/productsta.css">
+    <link rel="stylesheet" href="../css/engcommon.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../engjs/global.js"></script> 
+    
+    <style>
+        /* ===== War Room Layout Settings ===== */
+        .content-wrapper {
+            display: flex;
+            background: rgba(255, 255, 255, 0.4);
+            margin: 0 40px 20px 40px;
+            border-radius: 12px;
+            padding: 25px;
+            min-height: 600px;
+            align-items: stretch;
+        }
+
+        .detail-wrapper {
+            display: flex;
+            width: 100%;
+            gap: 25px;
+            position: relative;
+        }
+
+        /* --- Left Mint Green Dashboard Panel --- */
+        .left-info-card {
+            width: 340px;
+            background: #6FA8A8; 
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Upper Machine Display Section */
+        .card-top-section {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px 10px;
+            height: 200px;
+        }
+
+        .vertical-text {
+            /* 修改為橫排顯示 */
+            writing-mode: horizontal-tb;
+            font-size: 20px;
+            font-weight: 900;
+            color: #1a1a1a;
+            letter-spacing: 1px;
+            margin-right: 12px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.4);
+            white-space: nowrap; /* 防止換行 */
+        }
+
+        /* Top White Base Board Behind Image */
+        .image-container {
+            flex: 1;
+            height: 100%;
+            background: #ffffff; 
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            z-index: 2; 
+            position: relative;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            mix-blend-mode: multiply; 
+        }
+
+        /* Lower Data Metrics Display Section */
+        .card-bottom-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px 10px;
+        }
+
+        .stat-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-label {
+            font-size: 19px;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: #00ff88; 
+            text-align: center;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .tolerance-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Tolerance Input Box */
+        .tolerance-input {
+            width: 80px;
+            background: transparent;
+            border: none;
+            color: #ff3b3b; 
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .tolerance-input:disabled {
+            cursor: not-allowed;
+            color: #ff3b3b;
+            opacity: 0.9;
+        }
+
+        .percent-sign {
+            font-size: 26px;
+            color: #ff3b3b;
+            font-weight: bold;
+            margin-left: 2px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* --- Right Trend Chart Area --- */
+        .chart-area {
+            flex: 1;
+            background: #f8fcfc;
+            border-radius: 20px;
+            padding: 30px 40px;
+            position: relative;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            border: 2px solid #daecec;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- ===== Header ===== -->
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">Line Stability</h1>
+
+            <nav class="nav-menu">
+
+                <!-- 1. Home Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">Home</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">Machine Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">War Room</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. Production Line Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn active-tab">Production Line</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">Video Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">Production Detection</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">Virtual Model</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">Stability</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">Equipment Guide</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">Sensor Distribution</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">Sensor Content</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. Control Interface Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">Operation Interface</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">Operation Interface</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">Model Simulation</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. Historical Data Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">History Data</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">Historical Line Chart</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">Sensor History Search</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log History</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">PDF Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">Excel Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. Others Dropdown -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">Other</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">Predict Today's Output</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">Handover Notes</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">Backend Status</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">Carbon Footprint</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="content-wrapper">
+        <div class="detail-wrapper">
+            
+            <!-- ===== Left Integrated Dashboard ===== -->
+            <div class="left-info-card">
+                <div class="card-top-section">
+                    <div class="vertical-text">Metal Line</div>
+                    <div class="image-container">
+                        <img src="../picture/metalline.png" alt="Metal Production Line Equipment">
+                    </div>
+                </div>
+
+                <div class="card-bottom-section">
+                    <div class="stat-row">
+                        <span class="stat-label" id="cycle-count-label">Cycle 1 Duration:</span>
+                        <span class="stat-value" id="current-cycle-time">00:00</span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Standard Cycle Time:</span>
+                        <span class="stat-value" id="standard-cycle-time">46.76s</span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Tolerance Setting:</span>
+                        <div class="tolerance-wrapper">
+                            <input type="number" id="tolerance-input" class="tolerance-input" value="10" min="0" max="100">
+                            <span class="percent-sign">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Right Line Chart Area ===== -->
+            <div class="chart-area">
+                <a href="productsta.html" class="back-btn" title="Back">
+                    <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 10C9 8.89543 9.89543 8 11 8H18C19.1046 8 20 8.89543 20 10V16" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 11L9 8L12 5" stroke="#333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                
+                <div class="chart-container">
+                    <canvas id="detailChart"></canvas>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+</div>
+
+<script>
+    // --- 1. Permissions & Tolerance Settings Logic ---
+    const toleranceInput = document.getElementById('tolerance-input');
+    const TOLERANCE_KEY = 'PLC_TIME_TOLERANCE';
+
+    const savedTolerance = localStorage.getItem(TOLERANCE_KEY) || 10;
+    toleranceInput.value = savedTolerance;
+
+    function checkPermissionForTolerance() {
+        const token = localStorage.getItem('admin_token'); 
+        if (token) {
+            toleranceInput.disabled = false;
+        } else {
+            toleranceInput.disabled = true;
+        }
+    }
+
+    toleranceInput.addEventListener('change', (e) => {
+        let val = parseFloat(e.target.value);
+        if (val < 0) val = 0;
+        localStorage.setItem(TOLERANCE_KEY, val);
+    });
+
+    checkPermissionForTolerance();
+    setInterval(checkPermissionForTolerance, 1000);
+
+
+    // --- 2. Chart.js Custom Plugin (Draw Red Vertical Gap Lines) ---
+    const gapLinePlugin = {
+        id: 'gapLinePlugin',
+        beforeDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            const metaActual = chart.getDatasetMeta(0); 
+            const metaStd = chart.getDatasetMeta(1);    
+
+            ctx.save();
+            ctx.strokeStyle = '#ff4d4d'; 
+            ctx.lineWidth = 1.5;
+
+            metaActual.data.forEach((pointActual, index) => {
+                const pointStd = metaStd.data[index];
+                const actualValue = data.datasets[0].data[index];
+                
+                if (actualValue !== null && pointActual && pointStd) {
+                    ctx.beginPath();
+                    ctx.moveTo(pointActual.x, pointActual.y);
+                    ctx.lineTo(pointStd.x, pointStd.y);
+                    ctx.stroke();
+                }
+            });
+            ctx.restore();
+        }
+    };
+    Chart.register(gapLinePlugin);
+
+
+    // --- 3. Chart Initialization & Standard Time Reference Lookup ---
+    const ctx = document.getElementById('detailChart').getContext('2d');
+    
+    const standardTimesDict = {
+        1: 7.14, 10: 5.68, 11: 2.27, 12: 3.47, 13: 5.64, 14: 2.36, 15: 1.17, 16: 2.21,
+        17: 7.56, 18: 1.62, 19: 1.49, 20: 1.10, 21: 2.62, 22: 1.01, 23: 0.59, 24: 0.83
+    };
+
+    const stepIndexMap = {
+        1: 0, 10: 1, 11: 2, 12: 3, 13: 4, 14: 5, 15: 6, 16: 7,
+        17: 8, 18: 9, 19: 10, 20: 11, 21: 12, 22: 13, 23: 14, 24: 15
+    };
+
+    let actualTimesData = new Array(16).fill(null);
+
+    const detailChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['S1', 'S10', 'S11', 'S12', 'S13', 'S14', 'S15', 'S16', 'S17', 'S18', 'S19', 'S20', 'S21', 'S22', 'S23', 'S24'],
+            datasets: [
+                {
+                    label: 'Actual Time',
+                    data: actualTimesData,
+                    borderColor: '#333333',
+                    backgroundColor: '#333333',
+                    pointBackgroundColor: '#333333',
+                    pointRadius: 5,
+                    borderWidth: 2,
+                    tension: 0, 
+                    spanGaps: true 
+                },
+                {
+                    label: 'Standard Time',
+                    data: Object.values(standardTimesDict), 
+                    borderColor: '#4ade80',
+                    backgroundColor: '#4ade80',
+                    pointBackgroundColor: '#4ade80',
+                    pointRadius: 5,
+                    borderWidth: 2,
+                    tension: 0 
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: { top: 20, right: 30 }
+            },
+            scales: {
+                y: { 
+                    title: { display: true, text: 'Time (s)', align: 'end', font: { size: 16, weight: 'bold' } }, 
+                    min: 0,
+                    grid: { color: '#e0e0e0' }
+                },
+                x: { 
+                    title: { display: true, text: 'Step', align: 'end', font: { size: 16, weight: 'bold' } },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            }
+        }
+    });
+
+
+    // --- 4. API Polling, Strict S50 Emergency Stop Interception & Cycle Calculations ---
+    let currentStep = null;
+    let stepStartTime = null;
+    let cycleStartTime = null;
+    let cycleCount = 1;
+    let hasCompletedFullCycle = false; 
+    let lastElapsedSeconds = "00:00"; // Record elapsed seconds at emergency stop freeze
+    const POLLING_INTERVAL = 200; 
+
+    function updateLiveTimer() {
+        if (cycleStartTime !== null && currentStep !== 50) {
+            const now = performance.now();
+            lastElapsedSeconds = ((now - cycleStartTime) / 1000).toFixed(2);
+        }
+        // If state is S50, directly display frozen seconds on screen without incrementing
+        document.getElementById('current-cycle-time').innerText = `${lastElapsedSeconds}s`;
+        requestAnimationFrame(updateLiveTimer);
+    }
+    requestAnimationFrame(updateLiveTimer);
+
+    async function fetchPlcState() {
+        try {
+            const response = await fetch('http://192.168.3.85:9090/plc/state');
+            if (!response.ok) throw new Error('Network response error');
+            
+            const resJson = await response.json();
+            
+            // ⚡ Parse API payload strictly (Supports { reply: "50" }, { state: 50 }, or raw string/number)
+            let rawState = resJson;
+            if (resJson && typeof resJson === 'object') {
+                rawState = resJson.state !== undefined ? resJson.state : (resJson.reply !== undefined ? resJson.reply : null);
+            }
+            const newStep = parseInt(rawState, 10);
+
+            if (isNaN(newStep)) return;
+
+            // ⚡ If current state is S50 (Emergency Stop), interrupt timer and state progression
+            if (newStep === 50) {
+                currentStep = 50;
+                document.getElementById('current-cycle-time').style.color = "#ff4d4d"; // Warning red indicates pause
+                return;
+            } else {
+                document.getElementById('current-cycle-time').style.color = "#00ff88"; // Resume normal neon green
+            }
+
+            if (newStep !== currentStep) {
+                const now = performance.now(); 
+
+                if (newStep === 1) {
+                    if (currentStep === 24) {
+                        hasCompletedFullCycle = true;
+                    }
+
+                    if (hasCompletedFullCycle) {
+                        cycleCount++;
+                        document.getElementById('cycle-count-label').innerText = `Cycle ${cycleCount} Duration:`;
+                        hasCompletedFullCycle = false; 
+                    }
+                    
+                    cycleStartTime = now; 
+                    actualTimesData.fill(null); 
+                    detailChart.update();
+                } else if (cycleStartTime === null) {
+                    cycleStartTime = now;
+                }
+
+                if (currentStep !== null && currentStep !== 50 && stepStartTime !== null) {
+                    const timeDiffSeconds = parseFloat(((now - stepStartTime) / 1000).toFixed(2));
+                    
+                    const dataIndex = stepIndexMap[currentStep];
+                    if (dataIndex !== undefined) {
+                        actualTimesData[dataIndex] = timeDiffSeconds;
+                        detailChart.update();
+                    }
+
+                    const stdTime = standardTimesDict[currentStep];
+                    if (stdTime) {
+                        const tolerancePercent = parseFloat(localStorage.getItem(TOLERANCE_KEY) || 10);
+                        const toleranceRatio = tolerancePercent / 100;
+                        
+                        const minAllowed = stdTime * (1 - toleranceRatio);
+                        const maxAllowed = stdTime * (1 + toleranceRatio);
+
+                        if (timeDiffSeconds < minAllowed || timeDiffSeconds > maxAllowed) {
+                            if (typeof window.showError === 'function') {
+                                window.showError(`Warning: Production step [S${currentStep}] execution time anomaly!\nStandard Time: ${stdTime}s\nActual Time: ${timeDiffSeconds}s\n(Tolerance setting range: ±${tolerancePercent}%)`);
+                            }
+                        }
+                    }
+                }
+
+                currentStep = newStep;
+                stepStartTime = now;
+            }
+
+        } catch (error) {
+            console.error('Failed to fetch PLC status:', error);
+        }
+    }
+
+    setInterval(fetchPlcState, POLLING_INTERVAL);
+
+</script>
+</body>
+</html>

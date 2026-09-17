@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Monitoring</title>
+    <link rel="stylesheet" href="../css/mainUI.css">
+    <link rel="stylesheet" href="../css/engcommon.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="main-container">
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">Home</h1>
+            <nav class="nav-menu">
+                
+                <!-- 1. Home Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn active-tab">Home</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">Machine Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">War Room</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. Production Line Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn">Production Line</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">Video Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">Production Detection</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">Virtual Model</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">Stability</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">Equipment Guide</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">Sensor Distribution</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">Sensor Content</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. Operation Interface Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">Operation Interface</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">Operation Interface</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">Model Simulation</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. History Data Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">History Data</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">Historical Line Chart</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">Sensor History Search</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log History</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">PDF Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">Excel Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. Other Dropdown -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">Other</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">Predict Today's Output</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">Handover Notes</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">Backend Status</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">Carbon Footprint</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="main-grid-container">
+        
+        <div class="panel-card area-lt">
+            <div class="gauge-pair">
+                <div class="gauge-box">
+                    <h2 class="gauge-title g-temp-text">
+                        <span id="lamp-1" class="status-lamp lamp-red"></span> temperature
+                    </h2>
+                    <div class="gauge-svg-wrapper">
+                        <svg viewBox="0 0 100 60">
+                            <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                            <path id="temp-fill-1" class="gauge-active-ring g-temp-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                        </svg>
+                        <div class="gauge-value g-temp-text">0.0°C</div>
+                    </div>
+                </div>
+                <div class="gauge-box">
+                    <h2 class="gauge-title g-humi-text">humidity</h2>
+                    <div class="gauge-svg-wrapper">
+                        <svg viewBox="0 0 100 60">
+                            <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                            <path id="humi-fill-1" class="gauge-active-ring g-humi-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                        </svg>
+                        <div class="gauge-value g-humi-text">0.0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-card area-lb">
+            <div class="gauge-pair">
+                <div class="gauge-box">
+                    <h2 class="gauge-title g-temp-text">
+                        <span id="lamp-2" class="status-lamp lamp-red"></span> temperature
+                    </h2>
+                    <div class="gauge-svg-wrapper">
+                        <svg viewBox="0 0 100 60">
+                            <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                            <path id="temp-fill-2" class="gauge-active-ring g-temp-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                        </svg>
+                        <div class="gauge-value g-temp-text">0.0°C</div>
+                    </div>
+                </div>
+                <div class="gauge-box">
+                    <h2 class="gauge-title g-humi-text">humidity</h2>
+                    <div class="gauge-svg-wrapper">
+                        <svg viewBox="0 0 100 60">
+                            <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                            <path id="humi-fill-2" class="gauge-active-ring g-humi-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                        </svg>
+                        <div class="gauge-value g-humi-text">0.0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-card area-rt">
+            <div class="status-data-grid">
+                <div class="data-column">
+                    <p class="data-label">Device Connection <br><span id="conn-status" class="v-red">no</span></p>
+                    <p class="data-label">Operating status <br><span id="run-status" class="v-red">no</span></p>
+                </div>
+                <div class="data-column">
+                    <p class="data-label">Metal process time <br><span id="metal-timer" class="v-orange">00:00:00</span></p>
+                    <p class="data-label">Non-metal process time <br><span id="nonmetal-timer" class="v-green">00:00:00</span></p>
+                </div>
+                <div class="data-column prod-info">
+                    <p class="data-label">Metal：<br>Current / Target </p>
+                    <p class="data-val"><span id="metal-count" class="v-blue">0</span> <span class="v-yellow">1000</span></p>
+                    <p class="data-label">Non-metal：<br>Current / Target </p>
+                    <p class="data-val"><span id="nonmetal-count" class="v-blue">0</span> <span class="v-yellow">1000</span></p>
+                </div>
+            </div>
+        </div>  
+
+        <div class="panel-card area-mid-b">
+            <div class="gauge-pair">
+                <div class="gauge-box">
+                    <h2 class="gauge-title g-co2-text">
+                        <span id="lamp-co2" class="status-lamp lamp-red"></span> CO2
+                    </h2>
+                    <div class="gauge-svg-wrapper">
+                        <svg viewBox="0 0 100 60">
+                            <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                            <path id="co2-fill" class="gauge-active-ring g-co2-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                        </svg>
+                        <div class="gauge-value g-co2-text">0<small>ppm</small></div>
+                    </div>
+                </div>
+                <div class="gauge-box">
+                    <h2 class="gauge-title g-pm-text">
+                        <span id="lamp-pm" class="status-lamp lamp-red"></span> pollution
+                    </h2>
+                    <div class="gauge-svg-wrapper">
+                        <svg viewBox="0 0 100 60">
+                            <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                            <path id="pm-fill" class="gauge-active-ring g-pm-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                        </svg>
+                        <div class="gauge-value g-pm-text">0.0<small>μg</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-card area-power">
+            <h2 class="gauge-title g-power-text">
+                <span id="lamp-power" class="status-lamp lamp-red"></span> Power
+            </h2>
+            <div class="gauge-svg-wrapper">
+                <svg viewBox="0 0 100 60">
+                    <path class="gauge-base-ring" d="M10,50 A40,40 0 1,1 90,50" />
+                    <path id="power-fill" class="gauge-active-ring g-power-stroke" d="M10,50 A40,40 0 1,1 90,50" />
+                </svg>
+                <div class="gauge-value g-power-text">0<small>kW</small></div>
+            </div>
+        </div>
+
+        <div class="panel-card area-bottom">
+            <div class="device-flex-row">
+                <div class="device-item">
+                    <p class="dev-name">Conveyor1</p>
+                    <div class="dev-thumb" style="background-image: url('../picture/machine1.png')"></div>
+                    <div class="lamp lamp-fail">×</div>
+                </div>
+                <div class="device-item">
+                    <p class="dev-name">linear actuator robotic arm</p>
+                    <div class="dev-thumb" style="background-image: url('../picture/machine2.png')"></div>
+                    <div class="lamp lamp-fail">×</div>
+                </div>
+                <div class="device-item">
+                    <p class="dev-name">Gantry robot</p>
+                    <div class="dev-thumb" style="background-image: url('../picture/machine3.png')"></div>
+                    <div class="lamp lamp-fail">×</div>
+                </div>
+                <div class="device-item">
+                    <p class="dev-name">Conveyor2</p>
+                    <div class="dev-thumb" style="background-image: url('../picture/machine4.png')"></div>
+                    <div class="lamp lamp-fail">×</div>
+                </div>
+                <div class="device-item">
+                    <p class="dev-name">Rotary cylinder robotic arm</p>
+                    <div class="dev-thumb" style="background-image: url('../picture/machine5.png')"></div>
+                    <div class="lamp lamp-fail">×</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+    <script src="../engjs/global.js"></script>
+    <script src="../engjs/mainUI.js"></script>
+</body>
+</html>

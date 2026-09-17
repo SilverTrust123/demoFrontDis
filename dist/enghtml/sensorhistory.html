@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Data</title>
+    <link rel="stylesheet" href="../css/sensorhistory.css">
+    <link rel="stylesheet" href="../css/engcommon.css">
+</head>
+<body>
+
+<div class="main-container">
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">History Data</h1>
+            <nav class="nav-menu">
+                
+                <!-- 1. Home Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">Home</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">Machine Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">War Room</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. Production Line Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn">Production Line</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">Video Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">Production Detection</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">Virtual Model</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">Stability</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">Equipment Guide</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">Sensor Distribution</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">Sensor Content</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. Operation Interface Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">Operation Interface</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">Operation Interface</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">Model Simulation</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. History Data Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn active-tab">History Data</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">Historical Line Chart</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">Sensor History Search</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log History</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">PDF Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">Excel Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. Other Dropdown -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">Other</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">Predict Today's Output</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">Handover Notes</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">Backend Status</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">Carbon Footprint</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="content-wrapper">
+        <div class="sensor-controls">
+            <div class="label-box">Sensor</div>
+            <div class="select-container">
+                <select id="sensor-select" class="styled-select">
+                    <option value="" disabled selected>------Option------</option>
+                    <option value="8266_2">Temperature and Humidity Sensor A</option>
+                    <option value="8266_4">Temperature and Humidity Sensor B</option>
+                    <option value="8266_5">Power Sensor</option>
+                    <option value="8266_3">CO2 Sensor</option>
+                    <option value="8266_6">PM2.5 Sensor</option>
+                </select>  
+            </div>
+
+            <div class="date-btn-group">
+                <button type="button" class="time-btn" id="btn-today">Today</button>
+                <button type="button" class="time-btn" id="btn-week">Week</button>
+                <button type="button" class="time-btn" id="btn-month">Month</button>
+                
+                <div class="custom-date-wrapper">
+                    <button type="button" class="time-btn" id="btn-custom">Customize</button>
+                    <div class="hidden-pickers">
+                        <input type="date" id="custom-start-picker">
+                        <input type="date" id="custom-end-picker">
+                    </div>
+                </div>
+            </div>
+
+            <div id="date-display-group" class="date-inputs hidden">
+                <input type="text" id="display-date-start" class="date-picker-ui" readonly>
+                <span class="date-separator">~</span>
+                <input type="text" id="display-date-end" class="date-picker-ui" readonly>
+            </div>
+        </div>
+
+        <!-- 歷史數據文字表格容器 -->
+        <div class="data-table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Device ID</th>
+                        <th>Temperature (°C)</th>
+                        <th>Humidity濕度 (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #888;">Please select a sensor and a time range to load the data</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+<script src="../engjs/global.js"></script>
+<script src="../engjs/sensorhistory.js"></script>
+</body>
+</html>

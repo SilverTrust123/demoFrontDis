@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專題</title>
+
+    <link rel="stylesheet" href="../css/productline.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- ===== Header ===== -->
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">生產線偵測</h1>
+
+            <nav class="nav-menu">
+                
+                <!-- 1. 主頁 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">主頁</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">機台監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">戰情室</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. 生產線 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn active-tab">生產線</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">影像監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">生產線偵測</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">虛擬模型</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">產線穩定性</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">設備導覽</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">感測器分佈圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">感測器內容</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. 操作介面 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">操作介面</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">操作介面</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">模型模擬</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. 歷史資料 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">歷史資料</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">歷史折線圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">感測器歷史查詢</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log歷史呈現</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">報表下載</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">excel</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. 其他 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">其他</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">預測今日產出</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">交接事項</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">後端狀況</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">碳足跡</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+
+        <div class="header-divider"></div>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <main class="content-wrapper">
+
+        <!-- ===== 左側機台 ===== -->
+        <section class="machine-section">
+            <div class="image-placeholder">
+
+                <img src="../picture/allMachine.png" class="machine-image" alt="機械設備">
+
+                <!-- 燈號 1：輸送機 1 -->
+                <div class="diamond indicator-light light-blue light-1"></div>
+
+                <!-- 燈號 2：龍門機械臂 -->
+                <div class="diamond indicator-light orange light-2"></div>
+
+                <!-- 燈號 3：輸送機 2 -->
+                <div class="diamond indicator-light yellow light-3"></div>
+
+                <!-- 燈號 4：旋轉缸機械臂 -->
+                <div class="diamond indicator-light green light-4"></div>
+                <div class="diamond indicator-light green light-5"></div>
+
+            </div>
+        </section>
+
+<!-- ===== 右側看板 ===== -->
+<!-- ===== 右側看板 ===== -->
+<section class="board-section">
+    <div class="board-container">
+        <img src="../picture/board.png" class="board-image" alt="看板">
+
+        <div class="board-content">
+            <h2 id="state-id">S0</h2> 
+            <p id="state-text">等待初始化...</p> 
+        </div>
+
+        <!-- 按鈕區域 -->
+        <button id="reset-btn" class="reset-button" onclick="resetProductionLine()">重置生產線</button>
+    </div>
+</section>
+
+    </main>
+</div>
+<script src="../js/global.js?v=2"></script>
+<script src="../js/productline.js?v=2"></script>
+</body>
+</html>

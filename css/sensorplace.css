@@ -1,0 +1,183 @@
+/* 內容外框 */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.7); 
+    margin: 10px 60px 15px 60px; 
+    padding: 30px 50px;
+    max-height: calc(100vh - 140px); 
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 標題樣式 */
+.sensor-title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* ==========================================
+   雙欄佈局與動畫控制
+   ========================================== */
+.layout-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    width: 100%;
+    transition: all 0.5s ease-in-out;
+}
+
+/* 預設置中狀態：左側隱藏，地圖強制置中 */
+.layout-container.is-centered {
+    justify-content: center;
+}
+
+.layout-container.is-centered .details-container {
+    display: none;
+    width: 0;
+    opacity: 0;
+}
+
+.layout-container.is-centered .map-container {
+    margin: 0 auto;
+}
+
+/* 點擊點點後的展開狀態：左側卡片區顯現 */
+.details-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-height: 380px;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.card-list {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+/* 淡綠色感測器卡片 */
+.sensor-card {
+    flex: 1;
+    min-width: 220px;
+    max-width: 280px;
+    background-color: #d8f3e5; 
+    border: 2px solid #a3e0c0;
+    border-radius: 10px;
+    padding: 20px 15px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.sensor-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 6px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+.sensor-card h3 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #222;
+    margin: 20px 0 15px 0;
+}
+
+.sensor-card .status {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin: 15px 0 5px 0;
+}
+
+/* 右側：地圖容器 */
+.map-container {
+    position: relative;
+    width: 45%; 
+    max-width: 550px;
+    border: 2px solid #999;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.5s ease-in-out;
+}
+
+.base-map {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 地圖區域標籤通用樣式 */
+.map-label {
+    position: absolute;
+    font-weight: bold;
+    color: #1a365d;
+    pointer-events: none;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+    z-index: 5;
+}
+
+/* 各區域標籤位置與字型大小設定 */
+.label-meeting-room {
+    top: 11.5%;
+    left: 70%;
+    font-size: 22px;
+}
+
+.label-production-line {
+    top: 40%;
+    left: 70%;
+    font-size: 18px;
+}
+
+.label-office {
+    top: 80.5%;
+    left: 68.5%;
+    font-size: 24px;
+}
+
+/* 橘色按鈕點點 (Hotspots) */
+.hotspot {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: #ff6600;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 102, 0, 0.8);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    z-index: 10;
+    outline: none;
+    padding: 0;
+}
+
+.hotspot:hover {
+    transform: scale(1.35);
+    background-color: #ff3300;
+}
+
+/* 橘色點點位置 */
+.hotspot-bottom-left {
+    top: 58.5%;
+    left: 17.4%;
+}
+
+.hotspot-top-right {
+    top: 39.7%;
+    left: 55.4%;
+}

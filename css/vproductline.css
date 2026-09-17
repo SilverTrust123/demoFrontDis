@@ -1,0 +1,120 @@
+/* ================= 3D 專屬內容區排版 ================= */
+.content-wrapper {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    padding: 15px 30px 25px 30px;
+    height: calc(100vh - 85px); 
+    overflow: hidden; 
+}
+
+/* ----- 左側 3D 視圖區 ----- */
+.left-panel {
+    flex: 2; 
+    position: relative; 
+    background: #1a1a24; 
+    border-radius: 12px;
+    overflow: hidden; 
+    border: 3px solid #fff; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    display: flex; 
+    flex-direction: column;
+}
+#canvas-container { 
+    width: 100%; 
+    height: 100%; 
+    display: block; 
+}
+
+.uph-badge {
+    position: absolute; top: 15px; left: 15px; background: #1eb386; color: white;
+    padding: 8px 20px; border-radius: 20px; font-size: 22px; font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2); z-index: 5; letter-spacing: 1px;
+}
+
+.dt-status-box {
+    position: absolute; top: 15px; right: 15px; background: rgba(25, 28, 41, 0.85);
+    backdrop-filter: blur(10px); padding: 12px; border-radius: 8px; border-left: 4px solid #ffaa00;
+    color: white; z-index: 5; min-width: 180px;
+}
+.dt-status-title { font-size: 11px; color: #8a8d9b; margin-bottom: 4px; }
+.dt-status-value { font-size: 16px; font-weight: bold; color: #00ff88; }
+.dt-status-time { font-size: 12px; color: #ffaa00; margin-top: 4px; }
+
+/* ----- 底部浮動儲存條 ----- */
+.floating-confirm-bar {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(50px);
+    background: rgba(50, 50, 50, 0.95); border: 2px solid #f08519; border-radius: 30px;
+    padding: 8px 20px; display: flex; align-items: center; gap: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4); opacity: 0; pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 10;
+}
+.floating-confirm-bar.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+.confirm-text { color: white; font-size: 15px; font-weight: bold; }
+.confirm-text span { color: #00ff88; }
+.confirm-btn {
+    background: #4aa3ff; color: white; border: none; padding: 6px 16px; border-radius: 20px;
+    font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s;
+}
+.confirm-btn:hover { background: #357abd; }
+.confirm-btn:active { transform: scale(0.95); }
+
+/* ----- 右側參數控制區 ----- */
+.right-panel {
+    flex: 1; 
+    background: #e3eded; 
+    border-radius: 12px; 
+    border: 3px solid #b2d8d8;
+    padding: 15px; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+    min-width: 380px;
+    max-width: 450px;
+}
+
+.right-panel::-webkit-scrollbar { width: 6px; }
+.right-panel::-webkit-scrollbar-track { background: transparent; }
+.right-panel::-webkit-scrollbar-thumb { background: #b2d8d8; border-radius: 3px; }
+
+.param-group { display: flex; flex-direction: column; gap: 6px; } 
+.group-title {
+    background: #8e8e8e; color: white; padding: 3px 12px; border-radius: 15px;
+    font-size: 13px; font-weight: bold; align-self: flex-start; margin-bottom: 2px;
+}
+.param-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.param-label {
+    background: #1565c0; color: white; padding: 6px 10px; border-radius: 5px;
+    font-size: 14px; font-weight: bold; flex: 1; box-shadow: 0 3px 0 #0d47a1; 
+    text-align: left; 
+    padding-left: 15px;
+    white-space: nowrap;
+}
+
+.param-controls { display: flex; align-items: center; gap: 6px; }
+.param-controls button {
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid #999;
+    background: #fff; font-size: 20px; font-weight: bold; cursor: pointer;
+    display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #555;
+    line-height: 1;
+}
+.param-controls button:hover { background: #f0f0f0; }
+.param-controls button:active { transform: scale(0.95); }
+
+.param-value {
+    background: white; width: 70px; padding: 4px; border-radius: 6px;
+    text-align: center; font-size: 15px; font-weight: bold; color: #f08519;
+    border: 1px solid #ccc; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+.param-value.changed { color: #d9534f; border-color: #d9534f; background: #fff5f5; }
+
+/* ⚡ 修改：雙軌按鈕樣式 */
+.system-controls { display: flex; gap: 10px; margin-bottom: 5px; }
+.sys-btn { flex: 1; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; color: white; font-size: 14px; transition: 0.2s; }
+.btn-metal { background: #4aa3ff; }
+.btn-nonmetal { background: #ffaa00; }
+.sys-btn:hover { filter: brightness(1.1); }
+.sys-btn.active { filter: brightness(0.8); border: 2px solid #333; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }

@@ -1,0 +1,182 @@
+/* ===== 頁面整體內容區容器 ===== */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* 水平置中內容 */
+    align-items: center;     /* 垂直置中內容 */
+    background: rgba(255, 255, 255, 0.7); /* 半透明白框 */
+    margin: 10px 60px 15px 60px; 
+    padding: 40px 20px;
+    max-height: calc(100vh - 140px); 
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* ===== 輪播容器與軌道 ===== */
+.carousel-container {
+    width: 100%;
+    overflow: hidden; /* 隱藏當前頁面以外的內容 */
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out; /* 翻頁動畫 */
+    width: 100%;
+}
+
+.carousel-page {
+    min-width: 100%; /* 每一頁佔滿容器寬度 */
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    padding: 20px 0;
+    box-sizing: border-box;
+}
+
+/* ===== 感測器卡片基礎樣式 ===== */
+.sensor-card {
+    width: 28%;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: left;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sensor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== 卡片背景顏色分類 ===== */
+.orange { background-color: #ffe4c4; }
+.red    { background-color: #ffcccb; }
+.green  { background-color: #ccffcc; }
+.yellow { background-color: #ffffcc; }
+.purple { background-color: #e6ccff; }
+.blue   { background-color: #cce6ff; }
+
+/* ===== 感測器圖片樣式 (修正尺寸與適應) ===== */
+.sensor-photo {
+    width: 100%;
+    height: 180px;             /* 固定圖片顯示高度 */
+    object-fit: contain;       /* 保持圖片比例，自動縮放置中 */
+    background-color: #ffffff;  /* 給圖片乾淨白底 */
+    border-radius: 12px;       /* 圖片圓角 */
+    margin-bottom: 15px;       /* 與下方文字拉開距離 */
+    display: block;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== 預留佔位圖樣式 ===== */
+.photo-placeholder {
+    width: 100%;
+    height: 180px;
+    background: #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    border-radius: 12px;
+}
+
+/* ===== 卡片文字資訊樣式 ===== */
+.info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-text p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+    word-break: break-all;
+}
+
+/* 卡片第一列標題字體加粗加大 */
+.info-text p:first-child {
+    font-weight: bold;
+    font-size: 1.15rem;
+    color: #111;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 4px;
+}
+
+/* ===== 門檻設定輸入框與按鈕列樣式 ===== */
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.setting-row span {
+    white-space: nowrap;
+}
+
+.limit-input {
+    width: 60px;
+    padding: 3px 6px;
+    border: 1px solid #999;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 0.85rem;
+    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.btn-set-limit {
+    background: #ffffff;
+    border: 1px solid #555;
+    border-radius: 15px;
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.btn-set-limit:hover {
+    background: #333;
+    color: #fff;
+}
+
+/* ===== 左右切換按鈕樣式 ===== */
+.carousel-nav {
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.3s ease;
+}
+
+.carousel-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.prev { left: 15px; }
+.next { right: 15px; }

@@ -1,0 +1,56 @@
+/* ================= 交接板專屬版面設定 ================= */
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.85); /* 稍微提高不透明度，讓文字閱讀更清晰 */
+    margin: 10px 60px 15px 60px; 
+    padding: 30px 40px;
+    max-height: calc(100vh - 140px); 
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    position: relative; /* 為了讓儲存狀態絕對定位 */
+}
+
+/* --- 無痕輸入框本體 --- */
+#main-textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    resize: none; /* 禁止手動拉伸大小 */
+    outline: none; /* 點擊時不顯示黑框 */
+    font-size: 24px;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    color: #2c3e50;
+    line-height: 1.8;
+    letter-spacing: 1px;
+}
+
+/* 捲軸美化 */
+#main-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+#main-textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+#main-textarea::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+#main-textarea::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* --- 右下角自動儲存提示 --- */
+.save-status {
+    position: absolute;
+    bottom: 15px;
+    right: 25px;
+    font-size: 15px;
+    color: #888;
+    font-weight: bold;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* 不影響打字點擊 */
+}

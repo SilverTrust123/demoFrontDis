@@ -1,0 +1,179 @@
+/* ============================================================
+   1. 基礎佈局與中央白框
+   ============================================================ */
+.content-wrapper {
+    display: flex;
+    flex-direction: row;      /* 左右分欄 */
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;                /* 左右兩區的間距 */
+    background: #ffffffb3;
+    margin: 10px 60px 15px 60px;
+    padding: 50px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    min-height: calc(100vh - 180px);
+}
+
+/* ============================================================
+   2. 左側：報表下載區 (上下兩列)
+   ============================================================ */
+.report-left-section {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;                /* 上下兩列下載列的間距 */
+    flex: 2;                  /* 佔比調整 */
+}
+
+.report-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+/* 深藍色標籤 */
+.report-label-box {
+    background-color: #0b4a6b;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    min-width: 190px;         /* 確保標籤對齊 */
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* 下拉選單容器 */
+.report-select-container {
+    flex-grow: 1;
+}
+
+.styled-select {
+    width: 100%;
+    padding: 10px 20px;
+    border: 2px solid #0b4a6b;
+    border-radius: 30px;
+    font-size: 1rem;
+    text-align: center;
+    background-color: white;
+    outline: none;
+    cursor: pointer;
+}
+
+/* 下載按鈕 (如圖中的淺藍色) */
+.styled-download-btn {
+    background-color: #5bc0de;
+    color: white;
+    padding: 8px 30px;
+    border: 1px solid #46b8da;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.styled-download-btn:hover {
+    background-color: #31b0d5;
+    transform: translateY(-2px);
+}
+
+/* ============================================================
+   3. 右側：選擇時間段與互動日曆
+   ============================================================ */
+.report-right-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.time-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* 日期輸入框 (藥丸型狀) */
+.date-picker-input {
+    border: 2px solid #0b4a6b;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    color: #0b4a6b;
+    outline: none;
+}
+
+.date-picker-input:focus {
+    box-shadow: 0 0 5px rgba(11, 74, 107, 0.5);
+}
+
+/* 互動日曆容器 (對應圖中的方框) */
+.calendar-container {
+    width: 260px;
+    border: 2px solid #000;
+    background: #fff;
+    padding: 0;
+    box-shadow: 6px 6px 0px #000; /* 硬陰影效果 */
+}
+
+/* 如果使用 Flatpickr 套件，可加入以下樣式來符合圖中外觀 */
+.flatpickr-calendar {
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* ============================================================
+   4. 導覽列下拉選單 (共用樣式維持不變)
+   ============================================================ */
+.nav-item-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(240, 242, 245, 0.98);
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    border: 1px solid #ddd;
+    z-index: 1000;
+    margin-top: 10px;
+}
+
+.dropdown-link {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.dropdown-link:hover {
+    background-color: #007bff;
+    color: white !important;
+}
+
+.nav-item-dropdown:hover .dropdown-content {
+    display: block;
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Load Status</title>
+
+    <link rel="stylesheet" href="../css/backend.css">
+    <link rel="stylesheet" href="../css/engcommon.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body>
+
+<div class="main-container">
+
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">Backend Status</h1>
+
+            <nav class="nav-menu">
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">Home</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">Machine Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">War Room</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. Production Line Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn">Production Line</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">Video Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">Production Detection</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">Virtual Model</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">Stability</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">Equipment Guide</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">Sensor Distribution</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">Sensor Content</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. Operation Interface Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">Operation Interface</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">Operation Interface</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">Model Simulation</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. History Data Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">History Data</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">Historical Line Chart</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">Sensor History Search</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log History</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">PDF Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">Excel Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. Other Dropdown -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn active-tab">Other</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">Predict Today's Output</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">Handover Notes</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">Backend Status</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">Carbon Footprint</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="content-wrapper" style="flex-direction: column; position: relative;">
+        
+        <div class="top-indicators-row">
+            <div class="utilization-wrapper">
+                <div class="utilization-pill">Current Utilization : <span id="utilization-val">0%</span></div>
+            </div>
+            
+            <div class="server-pressure-circle" id="pressure-circle">
+                <div class="pressure-label">Server Pressure</div>
+                <div class="pressure-value" id="server-pressure-val">0</div>
+            </div>
+
+            <div class="process-time-wrapper">
+                <div class="process-time-pill">Recent Processing Time : <span id="process-time-val">0</span> s</div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: stretch; gap: 30px; width: 100%; flex: 1;">
+            <div class="chart-section pie-section">
+                <h2 class="chart-title">Overall System Operating Metrics</h2>
+                <div class="pie-container">
+                    <canvas id="statusPieChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-section gauge-section">
+                <h2 class="chart-title">Pressure Load Metrics</h2>
+                <div class="gauge-container">
+                    <div class="gauge-dial" id="gaugeDial">
+                        <div class="gauge-progress" id="gaugeProgress"></div>
+                    </div>
+                    <div class="gauge-bar-wrapper">
+                        <div class="gauge-rainbow-bar"></div>
+                        <div class="gauge-needle" id="gaugeNeedle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</div>
+
+<script src="../engjs/global.js"></script>
+<script src="../engjs/backend.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+/* ================= 戰情室內容區排版 ================= */
+.content-wrapper {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    padding: 15px 30px 25px 30px;
+    height: calc(100vh - 85px); 
+    overflow: hidden; 
+}
+
+/* ----- 左側 3D 視圖區 (無干擾純淨版) ----- */
+.left-panel {
+    flex: 2; 
+    position: relative; 
+    background: #1a1a24; 
+    border-radius: 12px;
+    overflow: hidden; 
+    border: 3px solid #fff; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+#canvas-container { 
+    width: 100%; 
+    height: 100%; 
+    display: block; 
+}
+
+/* ----- 右側狀態號誌面板 ----- */
+.real-status-panel {
+    flex: 1; 
+    background: #d4e8e5; /* 圖片中柔和的薄荷綠背景 */
+    border-radius: 12px; 
+    border: 3px solid #b2d8d8;
+    padding: 50px 30px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 35px; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+    min-width: 300px;
+    max-width: 350px;
+}
+
+/* 紅綠燈號誌 */
+.traffic-light {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    opacity: 0.3; /* 預設熄滅狀態 */
+    transition: opacity 0.3s, transform 0.2s;
+}
+
+.traffic-light.active {
+    opacity: 1;
+    transform: scale(1.05); /* 亮起時稍微放大 */
+}
+
+.traffic-light .light {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    box-shadow: inset -2px -2px 6px rgba(0,0,0,0.4);
+}
+
+/* 發光特效 */
+.traffic-light.active .light {
+    box-shadow: 0 0 20px currentColor, inset -2px -2px 6px rgba(0,0,0,0.2);
+}
+
+.traffic-light .light.green { background: #2ecc71; color: #2ecc71; }
+.traffic-light .light.yellow { background: #f1c40f; color: #f1c40f; }
+.traffic-light .light.red { background: #e74c3c; color: #e74c3c; }
+
+.traffic-light .label {
+    font-size: 26px;
+    font-weight: bold;
+    color: #222;
+    letter-spacing: 2px;
+}
+
+/* 底部按鈕與標籤區 */
+.panel-bottom {
+    margin-top: auto; /* 自動推到底部 */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; /* 靠右對齊 */
+    gap: 15px;
+}
+
+/* ⚡ 針對雙軌產能微調的標籤樣式 */
+.uph-badge-right {
+    background: #1eb386;
+    color: white;
+    padding: 12px 25px; /* 稍微增加上下 padding 讓多行文字不會太擠 */
+    border-radius: 20px; /* 從 30px 稍微收小，讓多行視覺更穩定 */
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    text-align: left; /* 文字靠右，對齊按鈕 */
+    line-height: 1.5; /* 增加行距，讓兩行產能數字更易讀 */
+}
+
+.reset-btn {
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 1px;
+}
+
+.reset-btn:hover { background: #e67e22; }
+.reset-btn:active { transform: scale(0.95); }

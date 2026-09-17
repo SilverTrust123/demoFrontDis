@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Distribution Map</title>
+    <link rel="stylesheet" href="../css/sensorplace.css">
+    <link rel="stylesheet" href="../css/engcommon.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="main-container">
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">Sensor Distribution</h1>
+
+            <nav class="nav-menu">
+
+                <!-- 1. Home Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">Home</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">Machine Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">War Room</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. Production Line Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn active-tab">Production Line</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">Video Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">Production Detection</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">Virtual Model</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">Stability</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">Equipment Guide</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">Sensor Distribution</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">Sensor Content</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. Control Interface Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">Operation Interface</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">Operation Interface</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">Model Simulation</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. Historical Data Dropdown -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">History Data</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">Historical Line Chart</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">Sensor History Search</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log History</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">PDF Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">Excel Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. Others Dropdown -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">Other</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">Predict Today's Output</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">Handover Notes</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">Backend Status</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">Carbon Footprint</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="content-wrapper">
+    <div class="sensor-title">● Factory Sensor Locations</div>
+    
+    <!-- Default class: is-centered -->
+    <div id="layout-container" class="layout-container is-centered">
+        <!-- Left: Hidden/empty before click, expands to show cards after click -->
+        <div id="sensor-details" class="details-container"></div>
+
+        <!-- Right: Map Container -->
+        <div class="map-container">
+            <img src="../picture/sensorplace.png" alt="Factory Map" class="base-map">
+
+            <!-- Area Labels (Conference Room, Production Line, Office) -->
+            <div class="map-label label-meeting-room">Conference Room</div>
+            <div class="map-label label-production-line">Production Line</div>
+            <div class="map-label label-office">Office</div>
+
+            <!-- Orange Hotspot Buttons -->
+            <button type="button" class="hotspot hotspot-bottom-left" onclick="showGroup(1)" title="Click to view Sensor Group 1"></button>
+            <button type="button" class="hotspot hotspot-top-right" onclick="showGroup(2)" title="Click to view Sensor Group 2"></button>
+        </div>
+    </div>
+</main>
+</div>
+<script src="../engjs/global.js"></script>
+<script src="../engjs/sensorplace.js"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>感測器內容</title>
+    <link rel="stylesheet" href="../css/sensorcontent.css">
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="main-container">
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo">感測器內容</h1>
+            <nav class="nav-menu">
+                
+                <!-- 1. 主頁 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn">主頁</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">機台監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">戰情室</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 2. 生產線 下拉選單 -->
+                <div class="nav-item-dropdown"> 
+                    <a href="productline.html" class="nav-btn active-tab">生產線</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">影像監控</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">生產線偵測</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">虛擬模型</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">產線穩定性</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">設備導覽</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">感測器分佈圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">感測器內容</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 3. 操作介面 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">操作介面</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">操作介面</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">模型模擬</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 4. 歷史資料 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">歷史資料</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">歷史折線圖</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">感測器歷史查詢</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log歷史呈現</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">報表下載</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">excel</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- 5. 其他 下拉選單 -->
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">其他</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">預測今日產出</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">交接事項</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">後端狀況</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">碳足跡</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+<main class="content-wrapper">
+    <button class="carousel-nav prev" id="prevBtn">&#10094;</button>
+
+    <div class="carousel-container">
+        <div class="carousel-track" id="carouselTrack">
+            <!-- 第一頁 -->
+            <div class="carousel-page">
+                <!-- PLC 無須設定門檻 -->
+                <div class="sensor-card orange">
+                    <img src="../picture/sensor_plc.jpg" alt="PLC" class="sensor-photo">
+                    <div class="info-text">
+                        <p>PLC</p>
+                        <p>型號：DT3U</p>
+                        <p>ip位置：192.168.3.255</p>
+                        <p>通訊協定：modbus/TCP</p>
+                        <p>PORT號數：502</p>
+                        <p>從站號數：1</p>
+                    </div>
+                </div>
+
+                <!-- 溫濕度感測器 A (8266_2) -->
+                <div class="sensor-card red">
+                    <img src="../picture/sensor_dht11_a.jpg" alt="溫濕度感測器A" class="sensor-photo">
+                    <div class="info-text">
+                        <p>溫濕度感測器A</p>
+                        <p>型號：DHT11</p>
+                        <p>ip位置：192.168.3.10</p>
+                        <p>微處理器：ESP8266D1</p>
+                        <p>通訊協定：http</p>
+                        <div class="setting-row">
+                            <span>設定溫度上限</span>
+                            <input type="number" id="temp-max-8266_2" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_2', 'temp', 'max', 'temp-max-8266_2')">設定</button>
+                        </div>
+                        <div class="setting-row">
+                            <span>設定濕度上限</span>
+                            <input type="number" id="hum-max-8266_2" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_2', 'hum', 'max', 'hum-max-8266_2')">設定</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 溫濕度感測器 B (8266_4) -->
+                <div class="sensor-card green">
+                    <img src="../picture/sensor_dht11_a.jpg" alt="溫濕度感測器B" class="sensor-photo">
+                    <div class="info-text">
+                        <p>溫濕度感測器B</p>
+                        <p>型號：DHT11</p>
+                        <p>ip位置：192.168.3.11</p>
+                        <p>微處理器：ESP8266D1</p>
+                        <p>通訊協定：http</p>
+                        <div class="setting-row">
+                            <span>設定溫度上限</span>
+                            <input type="number" id="temp-max-8266_4" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_4', 'temp', 'max', 'temp-max-8266_4')">設定</button>
+                        </div>
+                        <div class="setting-row">
+                            <span>設定濕度上限</span>
+                            <input type="number" id="hum-max-8266_4" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_4', 'hum', 'max', 'hum-max-8266_4')">設定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第二頁 -->
+            <div class="carousel-page">
+                <!-- 灰塵感測器 -->
+                <div class="sensor-card yellow">
+                    <img src="../picture/sensor_co2.jpg" alt="灰塵感測器" class="sensor-photo">
+                    <div class="info-text">
+                        <p>灰塵感測器</p>
+                        <p>型號：gp2y</p>
+                        <p>ip位置：192.168.3.3</p>
+                        <p>微處理器：ESP8266D1</p>
+                        <p>通訊協定：http</p>
+                        <div class="setting-row">
+                            <span>設定灰塵上限</span>
+                            <input type="number" id="dust-max-8266_3" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_3', 'dust', 'max', 'dust-max-8266_3')">設定</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 空氣品質感測器 -->
+                <div class="sensor-card purple">
+                    <img src="../picture/sensor_air.jpg" alt="空氣品質感測器" class="sensor-photo">
+                    <div class="info-text">
+                        <p>空氣品質感測器</p>
+                        <p>型號：mq135</p>
+                        <p>ip位置：192.168.3.4</p>
+                        <p>微處理器：ESP8266D1</p>
+                        <p>通訊協定：http</p>
+                        <div class="setting-row">
+                            <span>設定污染區間</span>
+                            <input type="number" id="aq-max-8266_3" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_3', 'aq', 'max', 'aq-max-8266_3')">設定</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 電力感測器 (8266_5) -->
+                <div class="sensor-card blue">
+                    <img src="../picture/sensor_power.jpg" alt="電力感測器" class="sensor-photo">
+                    <div class="info-text">
+                        <p>電力感測器</p>
+                        <p>型號：pzem400t</p>
+                        <p>ip位置：192.168.3.5</p>
+                        <p>微處理器：ESP8266D1</p>
+                        <p>通訊協定：http</p>
+                        <div class="setting-row">
+                            <span>設定功率上限</span>
+                            <input type="number" id="power-max-8266_5" placeholder="上限" class="limit-input">
+                            <button class="btn-set-limit" onclick="saveSensorLimit('8266_5', 'power', 'max', 'power-max-8266_5')">設定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="carousel-nav next" id="nextBtn">&#10095;</button>
+</main>
+</div>
+<script src="../js/global.js"></script>
+<script src="../js/sensorcontent.js"></script>
+</body>
+</html>

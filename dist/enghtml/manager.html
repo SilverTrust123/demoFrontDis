@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>War Room - Machine Monitoring</title>
+    <!-- Include External CSS -->
+    <link rel="stylesheet" href="../css/engmanager.css">
+    <link rel="stylesheet" href="../css/engcommon.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="main-container">
+    <header class="top-section">
+        <div class="header-main-row">
+            <h1 class="brand-logo" style="letter-spacing: 2px;">War Room</h1>
+            <nav class="nav-menu">
+                <div class="nav-item-dropdown">
+                    <a href="index.html" class="nav-btn active-tab">Home</a>
+                    <div class="dropdown-content">
+                        <a href="index.html" class="dropdown-link">
+                            <span class="link-text">Machine Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="manager.html" class="dropdown-link">
+                            <span class="link-text">War Room</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-divider"></div>
+                <div class="nav-item-dropdown">
+                    <a href="productline.html" class="nav-btn">Production Line</a>
+                    <div class="dropdown-content">
+                        <a href="video.html" class="dropdown-link">
+                            <span class="link-text">Video Monitoring</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productline.html" class="dropdown-link">
+                            <span class="link-text">Production Detection</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="realproductline.html" class="dropdown-link">
+                            <span class="link-text">Virtual Model</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="productsta.html" class="dropdown-link">
+                            <span class="link-text">Stability</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="guide.html" class="dropdown-link">
+                            <span class="link-text">Equipment Guide</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorplace.html" class="dropdown-link">
+                            <span class="link-text">Sensor Distribution</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorcontent.html" class="dropdown-link">
+                            <span class="link-text">Sensor Content</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-divider"></div>
+                <div class="nav-item-dropdown">
+                    <a href="control.html" class="nav-btn">Operation Interface</a>
+                    <div class="dropdown-content">
+                        <a href="control.html" class="dropdown-link">
+                            <span class="link-text">Operation Interface</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="vproductline.html" class="dropdown-link">
+                            <span class="link-text">Model Simulation</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-divider"></div>
+                <div class="nav-item-dropdown">
+                    <a href="history.html" class="nav-btn">History Data</a>
+                    <div class="dropdown-content">
+                        <a href="history.html" class="dropdown-link">
+                            <span class="link-text">Historical Line Chart</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="sensorhistory.html" class="dropdown-link">
+                            <span class="link-text">Sensor History Search</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="log.html" class="dropdown-link">
+                            <span class="link-text">Log History</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="report.html" class="dropdown-link">
+                            <span class="link-text">PDF Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="excel.html" class="dropdown-link">
+                            <span class="link-text">Excel Download</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-divider"></div>
+                <div class="nav-item-dropdown">
+                    <div class="nav-btn">Other</div>
+                    <div class="dropdown-content">
+                        <a href="todayexpect.html" class="dropdown-link">
+                            <span class="link-text">Predict Today's Output</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="change.html" class="dropdown-link">
+                            <span class="link-text">Handover Notes</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="backend.html" class="dropdown-link">
+                            <span class="link-text">Backend Status</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                        <a href="carbon.html" class="dropdown-link">
+                            <span class="link-text">Carbon Footprint</span>
+                            <span class="link-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="header-divider"></div>
+    </header>
+
+    <main class="main-grid-container">
+        
+        <!-- ⚡ Block 1: Top-Left (Capacity Efficiency) -->
+        <div class="panel-card area-lt">
+            <div class="efficiency-header">
+                <span class="efficiency-title">Capacity Efficiency (Past Hour)</span>
+            </div>
+            
+            <div class="eff-container">
+                <div class="eff-row">
+                    <span class="eff-label">Metal</span>
+                    <div class="yellow-bar-container mini-bar">
+                        <div id="eff-metal-fill" class="yellow-bar-fill bar-metal" style="width: 0%;"></div>
+                    </div>
+                    <span id="eff-metal-text" class="efficiency-val mini-val">0.0%</span>
+                </div>
+                
+                <div class="eff-row">
+                    <span class="eff-label">Non-metal</span>
+                    <div class="yellow-bar-container mini-bar">
+                        <div id="eff-nonmetal-fill" class="yellow-bar-fill bar-nonmetal" style="width: 0%;"></div>
+                    </div>
+                    <span id="eff-nonmetal-text" class="efficiency-val mini-val">0.0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚡ Block 2: Top-Middle (Utilization Rate) -->
+        <div class="panel-card area-mt">
+            <div class="card-header">Utilization Rate</div>
+            <div class="wave-container" style="--fill-percent: 0;">
+                <div class="wave-back"></div>
+                <div class="wave-front"></div>
+                <div class="wave-text" id="waveText">0.0%</div>
+            </div>
+        </div>
+
+        <!-- ⚡ Block 3: Top-Right (Carbon Footprint & Cumulative Power) -->
+        <div class="panel-card area-rt">
+            <div class="rt-header">Carbon Footprint <span id="carbon-val">0.0000 kg</span></div>
+            <svg id="carbon-leaf-icon" viewBox="0 0 24 24" class="carbon-icon">
+                <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 7.03,15.67 9.87,15.67C11.45,15.67 15,11 17,8Z" fill="#32CD32"/>
+            </svg>
+            <div class="power-usage-info">Cumulative Power: <span id="power-val">0.00 W</span></div>
+        </div>
+
+        <!-- ⚡ Block 4: Bottom-Left (Metal) -->
+        <div class="panel-card area-lb">
+            <div class="card-header">Metal
+                <div id="metal-uph" class="pill-title">Current Hourly Output : 0</div>
+            </div>
+            <div class="stats-list">
+                <div>Current Output <span id="metal-current" class="stat-blue">0</span></div>
+                <div>Target Output <span id="metal-target" class="stat-red">1000</span></div>
+            </div>
+            <div class="gauge-title">Metal Finished Product Ratio</div>
+            <div class="semi-circle-wrapper">
+                <div class="semi-circle-bg semi-circle-bg-orange"></div>
+                <div class="gauge-overlay-text">
+                    <span id="metal-ratio-1">0.00%</span>
+                    <span id="metal-ratio-2">100.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚡ Block 5: Bottom-Middle (Non-metal) -->
+        <div class="panel-card area-mb">
+            <div class="card-header">Non-metal
+                <div id="nonmetal-uph" class="pill-title">Current Hourly Output : 0</div>
+            </div>
+            <div class="stats-list">
+                <div>Current Output <span id="nonmetal-current" class="stat-blue">0</span></div>
+                <div>Target Output <span id="nonmetal-target" class="stat-red">1000</span></div>
+            </div>
+            <div class="gauge-title">Non-metal Finished Product Ratio</div>
+            <div class="semi-circle-wrapper">
+                <div class="semi-circle-bg semi-circle-bg-pink"></div>
+                <div class="gauge-overlay-text">
+                    <span id="nonmetal-ratio-1">0.00%</span>
+                    <span id="nonmetal-ratio-2">100.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚡ Block 6: Bottom-Right (Server Pressure) -->
+        <div class="panel-card area-rb">
+            <div class="rb-header">Server Pressure <span id="server-pressure-val">0</span></div>
+            
+            <div class="faces-container" style="justify-content: center; align-items: center; margin: 20px 0;">
+                <img id="pressure-face" src="../picture/goodmood.png" alt="Server Mood" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.15)); transition: all 0.3s ease;">
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-bar"></div>
+                <div class="slider-marker"></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Include JS Scripts -->
+<script src="../engjs/global.js"></script>
+<script src="../engjs/manager.js"></script>
+</body>
+</html>

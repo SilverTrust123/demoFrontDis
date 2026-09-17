@@ -1,0 +1,254 @@
+/* ============================================================
+   1. 基礎布局與背景 (繼承首頁風格)
+   ============================================================ */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    overflow: hidden; /* 防止雙重捲軸 */
+}
+
+.dashboard-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================================
+   2. 中央主要內容容器 (半透明霧面感)
+   ============================================================ */
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.6); /* 半透明底 */
+    backdrop-filter: blur(8px);
+    margin: 10px 60px 20px 60px; 
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    max-height: calc(100vh - 160px); 
+    overflow: hidden;
+}
+
+/* ============================================================
+   3. 篩選控制區 (按鈕 + 時間選擇器)
+   ============================================================ */
+.filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* 深藍色圓角按鈕 */
+.log-btn {
+    background-color: #1a5a7a;
+    color: white;
+    border: 2px solid #3eb5b5;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.log-btn:hover {
+    background-color: #247196;
+    transform: translateY(-2px);
+}
+
+.log-btn.active {
+    background-color: #0d4a66;
+    border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(62, 181, 181, 0.6);
+}
+
+/* 鎖定狀態按鈕 */
+.log-btn.locked {
+    background-color: #555 !important;
+    border-color: #777 !important;
+    color: #aaa !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 時間選擇群組 (位於 Info 右側) */
+/* 時間選擇群組 (位於 Info 右側) */
+/* 時間選擇群組 (位於 Info 右側) */
+.time-picker-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 6px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(62, 181, 181, 0.4);
+    transition: all 0.3s ease;
+}
+
+/* ✨ 關鍵：當加上 hidden 類別時，強制讓整個查詢區間直接消失 */
+.time-picker-group.hidden {
+    display: none !important;
+}
+
+/* ✨ 新增：Information 時的時間區間禁用遮罩樣式 */
+.time-picker-group.disabled-mode {
+    opacity: 0.35;
+    pointer-events: none; /* 完全禁止滑鼠點擊與互動 */
+    cursor: not-allowed;
+    background: rgba(200, 200, 200, 0.3);
+}
+
+.time-picker-group.disabled-mode input,
+.time-picker-group.disabled-mode button {
+    cursor: not-allowed;
+    background-color: #e0e0e0 !important;
+}
+
+.time-label {
+    color: #1a5a7a;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.time-input {
+    border: 1px solid #3eb5b5;
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #1a5a7a;
+    font-family: inherit;
+    outline: none;
+    background: white;
+}
+
+.time-separator {
+    color: #1a5a7a;
+    font-weight: bold;
+}
+
+/* 時間搜尋執行按鈕 */
+.search-submit-btn {
+    background-color: #f39c12; /* 橘色醒目 */
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-submit-btn:hover {
+    background-color: #e67e22;
+}
+
+/* 置右的清理 LOG 按鈕 (灰底圓角風格) */
+.clear-log-btn {
+    margin-left: auto; /* 關鍵：強行推至 Flex 容器最右側 */
+    background-color: #6e6e6e;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.clear-log-btn:hover {
+    background-color: #555555;
+    transform: translateY(-1px);
+}
+
+.clear-log-btn:active {
+    transform: translateY(0);
+    background-color: #444444;
+}
+
+/* ============================================================
+   4. 日誌內容顯示區 (白色大圓角框)
+   ============================================================ */
+.log-display-area {
+    background-color: #ffffff;
+    flex: 1;
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid #e0e0e0;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    overflow-y: auto;
+}
+
+/* 系統日誌內容標籤 (淡粉橘色) */
+.log-label {
+    background-color: #ffe8d6;
+    color: #b54a4a;
+    display: inline-block;
+    padding: 5px 25px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* ============================================================
+   5. 日誌列表細節
+   ============================================================ */
+.log-list-style {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.log-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: #333;
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+.log-item:hover {
+    background-color: #f8fbff;
+}
+
+/* 各級別顏色定義 */
+.level-warn { color: #f39c12; font-weight: bold; }
+.level-error { color: #e74c3c; font-weight: bold; }
+.level-info { color: #2980b9; font-weight: bold; }
+
+/* ERROR 時的整列警告底色 */
+.log-warning-row {
+    background-color: #fff5f5 !important;
+}
+
+/* ============================================================
+   6. 捲軸美化
+   ============================================================ */
+.log-display-area::-webkit-scrollbar {
+    width: 8px;
+}
+.log-display-area::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+.log-display-area::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+.log-display-area::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
