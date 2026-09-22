@@ -420,15 +420,15 @@ html, body {
     /* 2. 急停/繼續按鈕：覆蓋 JS 的 inline-style，縮小體積釋放第一排空間 
        (你上次改成 20px 太小了字會爆開，建議維持 45px 左右) */
     #global-header-controls button {
-        width: 45px !important;
-        height: 45px !important;
-        font-size: 10px !important;
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 18px !important;
         margin: 0 5px !important;
     }
 
     /* 3. Logo 標題：稍微縮小字體 */
     .brand-logo {
-        font-size: 40px !important;
+        font-size: 60px !important;
         margin: 0 0px !important;
         letter-spacing: 0 !important;
     }
@@ -453,7 +453,7 @@ html, body {
     }
 
     .nav-btn {
-        font-size: 30px !important;
+        font-size: 28px !important;
         padding: 8px 12px !important;
         white-space: nowrap !important;
     }
@@ -461,8 +461,8 @@ html, body {
     /* 6. 設定與登入圖示：等比例微縮，並加上底部間距防重疊 */
     .nav-settings-btn img,
     .nav-status-icon-btn img {
-        width: 30px !important;
-        height: 30px !important;
+        width: 50px !important;
+        height: 50px !important;
     }
     
     .nav-settings-btn,
