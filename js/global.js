@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();           // 1. 初始化主題
-    initErrorModal();      // 2. 初始化全螢幕大警報 (上方警報)
-    initToastModal();      // 3. 初始化右下角彈跳視窗 (下方警示)
+    initErrorModal();      // 2. 初始化右下角大警報 (原全螢幕警報)
+    initToastModal();      // 3. 初始化登入狀態對話框警示 (原右下角警示)
     initLoginModal();      
     initTimeoutModal();    
     initSettingsSidebar(); 
@@ -49,10 +49,11 @@ window.fetchWithAuth = async function(url, options = {}) {
 };
 
 // --- 全域狀態變數 ---
-let isAlertActive = false;    // 控制全螢幕警報
+let isAlertActive = false;    // 控制右下角大警報
 let lastAlertTime = 0;        
-let isToastActive = false;    // 控制右下角警示
+let isToastActive = false;    // 控制對話框警示
 let lastToastTime = 0;
+let toastTimerId = null;      // 新增：用來記錄對話框自動關閉的計時器
 
 // 用於追蹤步驟停滯過久的狀態變數
 let lastPlcState = null;
@@ -282,7 +283,7 @@ async function startGlobalMonitor() {
             ]);
 
             // ==========================================
-            // 🛑 警報 (Full Cover / 彈出式全螢幕大警報)
+            // 🛑 警報 (原全螢幕，現改為右下角大提示框)
             // ==========================================
             if (!isAlertActive && (now - lastAlertTime > CONFIG.ALERT_COOLDOWN)) {
                 
@@ -333,9 +334,8 @@ async function startGlobalMonitor() {
                     }
                 }
                 
-// 7. ⚡ log 中報 error (僅限 1 分鐘內發生的新錯誤)
+                // 7. ⚡ log 中報 error (僅限 1 分鐘內發生的新錯誤)
                 if (logErrorRes) {
-                    // 根據 API 結構，錯誤清單可能在 logErrorRes.response 陣列中
                     let errors = [];
                     if (Array.isArray(logErrorRes.response)) {
                         errors = logErrorRes.response;
@@ -350,31 +350,24 @@ async function startGlobalMonitor() {
 
                     for (let err of errors) {
                         if (!err || !err.timestamp) continue;
-
-                        // ⚠️ 關鍵修正：將後端的「秒」級 timestamp 乘以 1000 轉換為「毫秒」
                         let errTimeMs = err.timestamp * 1000;
-                        
-                        // 計算時間差 (毫秒)
                         let timeDiff = now - errTimeMs;
-
-                        // 判斷是否在 60000 毫秒 (1 分鐘) 內發生，且避免未來時間的誤判
                         if (timeDiff <= 60000 && timeDiff >= 0) {
                             hasRecentError = true;
-                            // 抓取第一筆最新錯誤的訊息來顯示
                             latestErrMsg = err.message || "無詳細訊息";
                             break;
                         }
                     }
 
                     if (hasRecentError) {
-                        window.showError(`系統異常：1分鐘內Log發生最新錯誤！`);
+                        window.showError(`系統異常：1分鐘內發生最新錯誤！\n詳細資訊: ${latestErrMsg}`);
                         return;
                     }
                 }
             }
 
             // ==========================================
-            // ⚠️ 警示 (Toast / 右下角小警示)
+            // ⚠️ 警示 (對話框 / 登入圖示下方小警示)
             // ==========================================
             if (!isToastActive && (now - lastToastTime > CONFIG.ALERT_COOLDOWN)) {
                 
@@ -446,57 +439,13 @@ async function startGlobalMonitor() {
 }
 
 /* ==============================================================
- * 警報 UI：全螢幕遮罩 (上方大警報)
+ * 🛑 警報 UI：右下角大警報框 (取代原本的全螢幕遮罩)
  * ============================================================== */
 function initErrorModal() {
-    if (document.getElementById('error-overlay')) return;
-    document.body.insertAdjacentHTML('beforeend',`
-    <div id="error-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:11000;justify-content:center;align-items:center;backdrop-filter:blur(6px);">
-        <div style="background:#b09090;width:800px;max-width:95%;border-radius:15px;overflow:hidden;box-shadow:0 0 100px rgba(0,0,0,0.8);text-align:center;border:4px solid #333;">
-            <div style="background:#b09090;padding:25px 10px 10px;display:flex;justify-content:center;">
-                <div style="width:0;height:0;border-left:50px solid transparent;border-right:50px solid transparent;border-bottom:85px solid #c00000;position:relative;">
-                    <span style="position:absolute;top:15px;left:-8px;color:white;font-size:55px;font-weight:bold;font-family:Arial;">!</span>
-                </div>
-            </div>
-            <div style="height:35px;background:repeating-linear-gradient(45deg,#f1c40f,#f1c40f 20px,#222 20px,#222 40px);border-top:3px solid #333;border-bottom:3px solid #333;"></div>
-            <div style="padding:60px 30px;min-height:150px;display:flex;align-items:center;justify-content:center;">
-                <p id="error-message" style="font-size:38px;font-weight:bold;color:white;margin:0;text-shadow:2px 2px 8px rgba(0,0,0,0.6);letter-spacing:2px;">設備嚴重異常！</p>
-            </div>
-            <div style="height:35px;background:repeating-linear-gradient(45deg,#f1c40f,#f1c40f 20px,#222 20px,#222 40px);border-top:3px solid #333;border-bottom:3px solid #333;"></div>
-            <button class="close-error" onclick="hideError()" style="width:100%;padding:30px;border:none;background:#E9CFCF;font-size:32px;font-weight:bold;cursor:pointer;color:#c00000;letter-spacing:4px;border-top:2px solid #333;">確認並關閉</button>
-        </div>
-    </div>`);
-}
-
-window.showError = (msg) => {
-    if (localStorage.getItem('dnd_mode') === 'true') return;
-
-    const overlay = document.getElementById('error-overlay');
-    const message = document.getElementById('error-message');
-    if (overlay && message) { 
-        isAlertActive = true; 
-        message.innerText = msg; 
-        overlay.style.display = 'flex'; 
-    }
-};
-
-window.hideError = () => {
-    const overlay = document.getElementById('error-overlay');
-    if (overlay) {
-        overlay.style.display = 'none';
-        isAlertActive = false;      
-        lastAlertTime = Date.now(); 
-    }
-};
-
-/* ==============================================================
- * 警示 UI：右下角彈跳視窗 (下方小警示)
- * ============================================================== */
-function initToastModal() {
-    if (document.getElementById('error-toast')) return;
+    if (document.getElementById('error-bottom-toast')) return;
     
     const toastHTML = `
-    <div id="error-toast" style="position: fixed; bottom: 30px; right: -450px; width: 380px; background: #b09090; border-radius: 12px; border: 3px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 12000; transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto;">
+    <div id="error-bottom-toast" style="position: fixed; bottom: 30px; right: -450px; width: 380px; background: #b09090; border-radius: 12px; border: 3px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 12000; transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto;">
         <div style="background:#b09090; padding: 15px; display:flex; justify-content:center;">
             <div style="width:0; height:0; border-left:25px solid transparent; border-right:25px solid transparent; border-bottom:45px solid #c00000; position:relative;">
                 <span style="position:absolute; top:8px; left:-4px; color:white; font-size:28px; font-weight:bold; font-family:Arial;">!</span>
@@ -504,34 +453,114 @@ function initToastModal() {
         </div>
         <div style="height: 15px; background: repeating-linear-gradient(45deg, #f1c40f, #f1c40f 15px, #222 15px, #222 30px); border-top: 2px solid #333; border-bottom: 2px solid #333;"></div>
         <div style="padding: 20px 15px; min-height: 100px; display:flex; align-items:center; justify-content:center; text-align: center;">
-            <p id="toast-message" style="font-size: 20px; font-weight: bold; color: white; margin: 0; text-shadow: 1px 1px 4px rgba(0,0,0,0.5); line-height: 1.4; white-space: pre-wrap;"></p>
+            <p id="error-bottom-message" style="font-size: 20px; font-weight: bold; color: white; margin: 0; text-shadow: 1px 1px 4px rgba(0,0,0,0.5); line-height: 1.4; white-space: pre-wrap;"></p>
         </div>
         <div style="height: 15px; background: repeating-linear-gradient(45deg, #f1c40f, #f1c40f 15px, #222 15px, #222 30px); border-top: 2px solid #333; border-bottom: 2px solid #333;"></div>
-        <button onclick="hideToast()" style="width: 100%; padding: 15px; border: none; background: #E9CFCF; font-size: 20px; font-weight: bold; cursor: pointer; color: #c00000; letter-spacing: 2px; transition: background 0.2s;">關閉</button>
+        <button onclick="hideError()" style="width: 100%; padding: 15px; border: none; background: #E9CFCF; font-size: 20px; font-weight: bold; cursor: pointer; color: #c00000; letter-spacing: 2px; transition: background 0.2s;">確認並關閉</button>
     </div>`;
     document.body.insertAdjacentHTML('beforeend', toastHTML);
 }
 
-window.showToast = (msg) => {
+window.showError = (msg) => {
     if (localStorage.getItem('dnd_mode') === 'true') return;
 
-    const toast = document.getElementById('error-toast');
-    const message = document.getElementById('toast-message'); 
+    const toast = document.getElementById('error-bottom-toast');
+    const message = document.getElementById('error-bottom-message');
     if (toast && message) { 
-        isToastActive = true; 
+        isAlertActive = true; 
         message.innerText = msg; 
         toast.style.right = '30px'; 
     }
 };
 
-window.hideToast = () => {
-    const toast = document.getElementById('error-toast');
+window.hideError = () => {
+    const toast = document.getElementById('error-bottom-toast');
     if (toast) {
         toast.style.right = '-450px'; 
         setTimeout(() => {
+            isAlertActive = false;      
+            lastAlertTime = Date.now(); 
+        }, 400); 
+    }
+};
+
+/* ==============================================================
+ * ⚠️ 警示 UI：登入狀態圖示下方的對話泡泡 (無按鈕、10秒自動關閉)
+ * ============================================================== */
+function initToastModal() {
+    if (document.getElementById('warning-bubble-toast')) return;
+    
+    const bubbleHTML = `
+    <div id="warning-bubble-toast" style="position: fixed; top: 70px; right: 80px; width: 320px; background: #fff; border-radius: 12px; border: 3px solid #e67e22; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 12000; opacity: 0; pointer-events: none; transform: translateY(-15px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column;">
+        
+        <!-- 向上箭頭外框 (Border) -->
+        <div style="position: absolute; top: -15px; right: 20px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #e67e22;"></div>
+        <!-- 向上箭頭內色 (Fill) -->
+        <div style="position: absolute; top: -11px; right: 22px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid #fff;"></div>
+        
+        <!-- 內容區 -->
+        <div style="padding: 15px 20px; display: flex; align-items: flex-start; gap: 12px;">
+            <img src="../picture/alert_icon.png" onerror="this.style.display='none'" alt="!" style="width: 30px; height: 30px; object-fit: contain;">
+            <p id="bubble-toast-message" style="font-size: 16px; font-weight: bold; color: #333; margin: 0; line-height: 1.5; white-space: pre-wrap; flex: 1;"></p>
+        </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', bubbleHTML);
+}
+
+window.showToast = (msg) => {
+    if (localStorage.getItem('dnd_mode') === 'true') return;
+
+    const toast = document.getElementById('warning-bubble-toast');
+    const message = document.getElementById('bubble-toast-message'); 
+    const loginIcon = document.getElementById('login-status-icon-btn'); // 動態抓取導覽列的登入圖示
+
+    if (toast && message) { 
+        isToastActive = true; 
+        message.innerText = msg; 
+        
+        // 動態計算登入圖示的位置，讓對話框精準對齊在圖示的正下方
+        if (loginIcon) {
+            const rect = loginIcon.getBoundingClientRect();
+            toast.style.top = (rect.bottom + 15) + 'px';
+            // 讓箭頭大概對準 Icon 的中心 (泡泡右側距離螢幕邊緣的計算)
+            toast.style.right = (window.innerWidth - rect.right - 10) + 'px'; 
+        } else {
+            // 如果抓不到圖示的備用位置
+            toast.style.top = '80px';
+            toast.style.right = '50px';
+        }
+
+        toast.style.opacity = '1'; 
+        toast.style.transform = 'translateY(0)';
+        
+        // 確保如果有正在倒數的關閉動作，先取消掉，重新計算 10 秒
+        if (toastTimerId) {
+            clearTimeout(toastTimerId);
+        }
+
+        // 10 秒 (10000 毫秒) 後自動呼叫 hideToast 關閉視窗
+        toastTimerId = setTimeout(() => {
+            window.hideToast();
+        }, 10000);
+    }
+};
+
+window.hideToast = () => {
+    const toast = document.getElementById('warning-bubble-toast');
+    if (toast) {
+        toast.style.opacity = '0'; 
+        toast.style.transform = 'translateY(-15px)';
+        
+        // 如果手動或被其他地方呼叫 hideToast，也要把未執行完的倒數計時器清掉
+        if (toastTimerId) {
+            clearTimeout(toastTimerId);
+            toastTimerId = null;
+        }
+
+        setTimeout(() => {
             isToastActive = false;      
             lastToastTime = Date.now(); 
-        }, 400); 
+        }, 300); 
     }
 };
 

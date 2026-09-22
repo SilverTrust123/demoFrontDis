@@ -259,3 +259,39 @@
     text-shadow: 6px 6px 6px rgba(0, 0, 0, 0.5); /* 陰影變淡、變細 */
     margin-left:20px;
 }
+@media screen and (max-width: 1200px) {
+    .board-image {
+    width: 100%; /* 回歸 100% 避免超出容器 */
+    height: 100%;
+    object-fit: contain;
+}
+.board-content {
+    position: absolute;
+    top: 60%; /* 根據視覺微調置中 */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* 核心修正：寬度不要超過 100%，否則會跑出藍色框 */
+    width: 90%; 
+    height: 70%;
+    
+    background: transparent; /* 移除原本的半透明背景，讓它只顯示在圖框內 */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+}
+.board-content h2 {
+    font-size: 20px;
+    color: #1a2a30;
+    border-bottom: 2px solid #1a2a30;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+}
+.board-content p {
+    font-size: 20px;
+    color: #333;
+    margin: 0;
+    white-space: nowrap; /* 防止長文字折行 */
+}
+}
