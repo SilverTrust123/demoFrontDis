@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (saveStatus.textContent === "已自動儲存 ✓") saveStatus.textContent = "";
                 }, 3000);
             } else {
-                saveStatus.textContent = "儲存失敗 ✕";
+                saveStatus.textContent = "請登入";
                 saveStatus.style.color = '#e74c3c';
             }
         } catch (error) {

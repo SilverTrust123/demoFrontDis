@@ -745,7 +745,7 @@ function initSettingsSidebar() {
                     <hr style="margin: 20px 0; border: 0; border-top: 1px solid rgba(0,0,0,0.1);">
                     <p style="font-size: 18px; color: var(--text-sub-color, #666); line-height: 1.6;">名字：<br>
 PLC model name - unit ID<br>
-PLC model type - 5uU-64MR-ES<br>
+PLC model type - FX5U-64MR-ES<br>
 
 Ethernet  IP<br>
 PLC ip<br>

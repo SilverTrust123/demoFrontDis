@@ -32,10 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [{
                 data: [0, 0, 0, 0], 
                 backgroundColor: [
-                    '#7add81f9', // runnable - 綠色
                     '#89def8',   // waiting - 藍色
                     '#e373fd',   // blocked - 紫粉色
-                    '#ff7c7c'    // timed_waiting - 紅色
+                    '#ff7c7c',    
+                    '#7add81f9' 
                 ],
                 borderColor: '#ffffff',
                 borderWidth: 2,
@@ -163,14 +163,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===== 2. 壓力負載指標控制 =====
+    // ===== 2. 壓力負載指標控制 (一分為二) =====
     const needle = document.getElementById('gaugeNeedle');
     const gaugeContainer = document.querySelector('.gauge-container');
 
-    function setGaugeValue(value, max = 100) {
+    // ⚡ 獨立控制：上方半圓圖 (對應 Queue Size)
+    function setSemiCircleValue(value, max = 100) {
         let constrainedPercent = Math.max(0, Math.min(100, (value / max) * 100));
-        if (needle) needle.style.left = `${constrainedPercent}%`;
-        if (gaugeContainer) gaugeContainer.style.setProperty('--gauge-percent', constrainedPercent);
+        if (gaugeContainer) {
+            gaugeContainer.style.setProperty('--gauge-percent', constrainedPercent);
+        }
+    }
+
+    // ⚡ 獨立控制：下方長條圖指針 (對應 Latest Process Time)
+    function setLinearGaugeValue(value, max = 2500) {
+        let constrainedPercent = Math.max(0, Math.min(100, (value / max) * 100));
+        if (needle) {
+            needle.style.left = `${constrainedPercent}%`;
+        }
     }
 
     // ===== 3. 同步請求兩支 API =====
@@ -197,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusPieChart.update();
             }
 
-            // 2. 處理利用率、伺服器壓力與最近處理時間 (allFilterLoadStats)
+            // 2. 處理利用率、伺服器壓力與最新處理時間 (allFilterLoadStats)
             if (resFilter && resFilter.ok) {
                 const filterJson = await resFilter.json();
                 
@@ -215,6 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const busy = filterLoadData.busy_thread;
                 const blocked = filterLoadData.blocked_thread;
                 const total = filterLoadData.total_thread || 1; 
+                
+                // ⚡ 抓取 QueueSize 與 處理時間
                 const queueSize = filterJson.queueSize || 0;
                 const lastestProcessTime = filterJson.lastestProcessTime || 0;
 
@@ -256,9 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // 更新原有的壓力負載儀表板 (Gauge)
+                // ==========================================
+                // ⚡ 雙圖表分離更新邏輯
+                // ==========================================
+                // 1. 更新上方半圓圖 (依照 queueSize，假設滿載為 100)
                 const MAX_QUEUE_LIMIT = 100;
-                setGaugeValue(queueSize, MAX_QUEUE_LIMIT);
+                setSemiCircleValue(queueSize, MAX_QUEUE_LIMIT);
+
+                // 2. 更新下方長條圖指針 (依照 lastestProcessTime，極限為 2500ms)
+                const MAX_TIME_LIMIT = 2500;
+                setLinearGaugeValue(lastestProcessTime, MAX_TIME_LIMIT);
             }
 
         } catch (error) {

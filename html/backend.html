@@ -155,30 +155,54 @@
             </div>
 
             <div class="process-time-wrapper">
-                <div class="process-time-pill">最近處理時間 : <span id="process-time-val">0</span> 秒</div>
+                <div class="process-time-pill">最新處理時間 : <span id="process-time-val">0</span> ms</div>
             </div>
         </div>
 
         <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: stretch; gap: 30px; width: 100%; flex: 1;">
+            
+            <!-- 左側圓餅圖區域 -->
             <div class="chart-section pie-section">
-                <h2 class="chart-title">系統整體運轉指標</h2>
+                <h2 class="chart-title">執行緒運行狀態 (Thread Stats)</h2>
                 <div class="pie-container">
                     <canvas id="statusPieChart"></canvas>
                 </div>
             </div>
 
+            <!-- 右側儀表板區域 -->
             <div class="chart-section gauge-section">
-                <h2 class="chart-title">壓力負載指標</h2>
-                <div class="gauge-container">
-                    <div class="gauge-dial" id="gaugeDial">
-                        <div class="gauge-progress" id="gaugeProgress"></div>
+                <h2 class="chart-title">處理時間監控</h2>
+                
+                <div class="gauge-container" style="max-width: 100%; width: 100%; align-items: center; gap: 60px;">
+                    
+                    <!-- 🟢 上方半圓圖與小文字區 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-wrap: wrap; width: 100%;">
+                        <div class="gauge-dial" id="gaugeDial" style="flex-shrink: 0;">
+                            <div class="gauge-progress" id="gaugeProgress"></div>
+                        </div>
+                        <!-- ⚡ 簡潔小文字說明 (佇列長度) -->
+                        <span style="font-size: 22px; font-weight: bold; color: #555; letter-spacing: 2px;">佇列長度</span>
                     </div>
-                    <div class="gauge-bar-wrapper">
-                        <div class="gauge-rainbow-bar"></div>
-                        <div class="gauge-needle" id="gaugeNeedle"></div>
+
+                    <!-- 🔴 下方長條圖與小文字區 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-wrap: wrap; width: 100%;">
+                        <div class="gauge-bar-wrapper" style="margin-top: 0; width: 100%; max-width: 440px; flex-shrink: 0;">
+                            <div class="gauge-rainbow-bar"></div>
+                            <div class="gauge-needle" id="gaugeNeedle"></div>
+                            <!-- 底部刻度標示 -->
+                            <div style="display: flex; justify-content: space-between; margin-top: 25px; font-weight: bold; color: #666; font-size: 14px; padding: 0 5px;">
+                                <span>0 ms</span>
+                                <span>1250 ms</span>
+                                <span>2500 ms</span>
+                            </div>
+                        </div>
+                        <!-- ⚡ 簡潔小文字說明 (處理時間) -->
+                        <span style="font-size: 22px; font-weight: bold; color: #555; letter-spacing: 2px;">處理時間</span>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </main>
 
