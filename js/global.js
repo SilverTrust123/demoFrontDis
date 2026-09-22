@@ -367,10 +367,11 @@ async function startGlobalMonitor() {
                     }
 
                     if (hasRecentError) {
-                        window.showError(`系統異常：1分鐘內發生最新錯誤！\n詳細資訊: ${latestErrMsg}`);
+                        window.showError(`系統異常：1分鐘內Log發生最新錯誤！`);
                         return;
                     }
                 }
+            }
 
             // ==========================================
             // ⚠️ 警示 (Toast / 右下角小警示)
