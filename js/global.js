@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();           // 1. 初始化主題
-    initErrorModal();      // 2. 初始化右下角大警報 (原全螢幕警報)
-    initToastModal();      // 3. 初始化登入狀態對話框警示 (原右下角警示)
+    initErrorModal();      // 2. 初始化右下角大警報
+    initSettingsSidebar(); // 3. ⚡ 提前生成導覽列與登入圖示 (非常重要)
+    initToastModal();      // 4. ⚡ 將對話框警示「塞入」登入圖示內部
     initLoginModal();      
     initTimeoutModal();    
-    initSettingsSidebar(); 
-    initControlButtons();  // 4. 動態注入並初始化 Header 左側 STOP / START 按鈕
+    initControlButtons();  // 5. 動態注入並初始化 Header 左側 STOP / START 按鈕
     checkLoginStatus();
     
     // 啟動全域背景監控 (整合 Webcam、API 感測器、PLC、Log 與後端狀態)
@@ -53,7 +53,7 @@ let isAlertActive = false;    // 控制右下角大警報
 let lastAlertTime = 0;        
 let isToastActive = false;    // 控制對話框警示
 let lastToastTime = 0;
-let toastTimerId = null;      // 新增：用來記錄對話框自動關閉的計時器
+let toastTimerId = null;      // 用來記錄對話框自動關閉的計時器
 
 // 用於追蹤步驟停滯過久的狀態變數
 let lastPlcState = null;
@@ -485,26 +485,38 @@ window.hideError = () => {
 };
 
 /* ==============================================================
- * ⚠️ 警示 UI：登入狀態圖示下方的對話泡泡 (無按鈕、10秒自動關閉)
+ * ⚠️ 警示 UI：登入狀態圖示下方的對話泡泡 
+ * ⚡ 終極解法：強制塞進按鈕內部，使用 absolute 綁定！
  * ============================================================== */
 function initToastModal() {
     if (document.getElementById('warning-bubble-toast')) return;
     
+    // 這裡我們把 position 設為 absolute，並用百分比定位
     const bubbleHTML = `
-    <div id="warning-bubble-toast" style="position: fixed; top: 70px; right: 80px; width: 320px; background: #fff; border-radius: 12px; border: 3px solid #e67e22; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 12000; opacity: 0; pointer-events: none; transform: translateY(-15px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column;">
+    <div id="warning-bubble-toast" style="position: absolute; top: calc(100% + 15px); right: -10px; width: 320px; background: #fff; border-radius: 12px; border: 3px solid #e67e22; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 12000; opacity: 0; pointer-events: none; transform: translateY(-15px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column;">
         
         <!-- 向上箭頭外框 (Border) -->
-        <div style="position: absolute; top: -15px; right: 20px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #e67e22;"></div>
+        <div style="position: absolute; top: -15px; right: 25px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #e67e22;"></div>
         <!-- 向上箭頭內色 (Fill) -->
-        <div style="position: absolute; top: -11px; right: 22px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid #fff;"></div>
+        <div style="position: absolute; top: -11px; right: 27px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid #fff;"></div>
         
         <!-- 內容區 -->
-        <div style="padding: 15px 20px; display: flex; align-items: flex-start; gap: 12px;">
-            <img src="../picture/alert_icon.png" onerror="this.style.display='none'" alt="!" style="width: 30px; height: 30px; object-fit: contain;">
+        <div style="padding: 15px 20px; display: flex; align-items: flex-start; gap: 12px; text-align: left;">
+            <img src="../picture/alert_icon.png" onerror="this.style.display='none'" alt="!" style="width: 30px; height: 30px; object-fit: contain; flex-shrink: 0;">
             <p id="bubble-toast-message" style="font-size: 16px; font-weight: bold; color: #333; margin: 0; line-height: 1.5; white-space: pre-wrap; flex: 1;"></p>
         </div>
     </div>`;
-    document.body.insertAdjacentHTML('beforeend', bubbleHTML);
+    
+    // ⚡ 核心綁定動作：抓到登入按鈕，把對話框直接塞進按鈕肚子裡
+    const loginIconBtn = document.getElementById('login-status-icon-btn');
+    if (loginIconBtn) {
+        // 確保父元素有相對定位，這樣 absolute 才會以它為基準
+        loginIconBtn.style.position = 'relative'; 
+        loginIconBtn.insertAdjacentHTML('beforeend', bubbleHTML);
+    } else {
+        // 萬一抓不到 (理應不會發生)，退回到 body
+        document.body.insertAdjacentHTML('beforeend', bubbleHTML);
+    }
 }
 
 window.showToast = (msg) => {
@@ -512,24 +524,12 @@ window.showToast = (msg) => {
 
     const toast = document.getElementById('warning-bubble-toast');
     const message = document.getElementById('bubble-toast-message'); 
-    const loginIcon = document.getElementById('login-status-icon-btn'); // 動態抓取導覽列的登入圖示
 
     if (toast && message) { 
         isToastActive = true; 
         message.innerText = msg; 
         
-        // 動態計算登入圖示的位置，讓對話框精準對齊在圖示的正下方
-        if (loginIcon) {
-            const rect = loginIcon.getBoundingClientRect();
-            toast.style.top = (rect.bottom + 15) + 'px';
-            // 讓箭頭大概對準 Icon 的中心 (泡泡右側距離螢幕邊緣的計算)
-            toast.style.right = (window.innerWidth - rect.right - 10) + 'px'; 
-        } else {
-            // 如果抓不到圖示的備用位置
-            toast.style.top = '80px';
-            toast.style.right = '50px';
-        }
-
+        // 因為已經綁在圖示內部，不需要再算座標了！直接顯示即可！
         toast.style.opacity = '1'; 
         toast.style.transform = 'translateY(0)';
         
@@ -551,7 +551,6 @@ window.hideToast = () => {
         toast.style.opacity = '0'; 
         toast.style.transform = 'translateY(-15px)';
         
-        // 如果手動或被其他地方呼叫 hideToast，也要把未執行完的倒數計時器清掉
         if (toastTimerId) {
             clearTimeout(toastTimerId);
             toastTimerId = null;

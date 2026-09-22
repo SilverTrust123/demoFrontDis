@@ -261,13 +261,13 @@
 }
 @media screen and (max-width: 1200px) {
     .board-image {
-    width: 100%; /* 回歸 100% 避免超出容器 */
-    height: 100%;
+    width: 120%; /* 回歸 100% 避免超出容器 */
+    height: 120%;
     object-fit: contain;
 }
 .board-content {
     position: absolute;
-    top: 60%; /* 根據視覺微調置中 */
+    top: 55%; /* 根據視覺微調置中 */
     left: 50%;
     transform: translate(-50%, -50%);
     
