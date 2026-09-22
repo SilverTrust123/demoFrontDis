@@ -22,7 +22,7 @@
     background-color: #fffeb3;
     padding: 10px 25px;
     border-radius: 30px;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bold;
     color: #333;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
@@ -45,7 +45,7 @@
     background-color: #e3f2fd;
     padding: 10px 25px;
     border-radius: 30px;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bold;
     color: #1565c0;
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
@@ -59,8 +59,8 @@
 
 /* ⚡ 伺服器壓力圓圈 (置中) */
 .server-pressure-circle {
-    width: 120px;
-    height: 120px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
     --pressure-color: #ffea4a; 
     background-color: var(--pressure-color);
@@ -74,16 +74,17 @@
 }
 
 .pressure-label {
-    font-size: 14px;
+    font-size: 24px;
     color: #555;
     font-weight: bold;
     margin-bottom: 5px;
     letter-spacing: 1px;
+    text-align:center;
     text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
 }
 
 .pressure-value {
-    font-size: 40px;
+    font-size: 60px;
     font-weight: 900;
     color: #333;
     line-height: 1;
@@ -209,4 +210,96 @@
     border-bottom: 16px solid #333333;
     transform: translate(-50%, -20%);
     transition: left 0.3s ease;
+}
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 頂部指標列：平板寬度不足，解除絕對定位，改為並排或折行 */
+    .top-indicators-row {
+        flex-direction: row;
+        flex-wrap: wrap; /* 空間不夠時允許折行 */
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .utilization-wrapper,
+    .process-time-wrapper {
+        position: relative; /* 解除 absolute，避免在平板上重疊或超框 */
+        left: auto;
+        right: auto;
+        top: auto;
+        transform: none;
+    }
+
+    /* 指標按鈕內的字體微縮 */
+    .utilization-pill,
+    .process-time-pill {
+        font-size: 24px;
+        padding: 8px 18px;
+    }
+
+    /* 伺服器壓力圓圈微縮 */
+    .server-pressure-circle {
+        width: 130px;
+        height: 130px;
+        border-width: 6px;
+    }
+
+    .pressure-value {
+        font-size: 48px;
+    }
+
+    .pressure-label {
+        font-size: 20px;
+    }
+
+    /* ⚡ 主要容器與卡片版面：從水平並排改為垂直排列 */
+    .content-wrapper {
+        flex-direction: column; /* 核心修改：左右分割變為上下排列 */
+        gap: 20px;
+        padding: 20px;
+        margin: 10px 20px 15px 20px; /* 縮小外距，爭取內部空間 */
+        min-height: auto; /* 解除 100vh 限制，讓內容順利往下延伸 */
+    }
+
+    .chart-section {
+        width: 100%;
+        box-sizing: border-box; /* 確保內距不會撐破外框 */
+        padding: 30px 15px;
+    }
+
+    .chart-title {
+        font-size: 28px;
+        width: 90%;
+        margin-bottom: 30px;
+    }
+
+    /* 圓餅圖容器微縮 */
+    .pie-container {
+        height: 350px;
+    }
+
+    /* ⚡ 壓力計 (Gauge) 等比例縮小，避免在平板上太擁擠 */
+    .gauge-container {
+        max-width: 320px;
+    }
+
+    .gauge-dial {
+        width: 320px;
+        height: 160px; /* 高度是寬度的一半 */
+        border-radius: 160px 160px 0 0;
+    }
+
+    .gauge-progress {
+        width: 320px;
+        height: 320px;
+    }
+
+    .gauge-needle {
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 12px solid #333333;
+    }
 }

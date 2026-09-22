@@ -260,3 +260,138 @@
 .confirm-btn:hover { background: #357abd; }
 .confirm-btn:active { transform: scale(0.95); }
 .confirm-btn:disabled { background: #888; cursor: not-allowed; }
+
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1200px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* =========================================
+       1. 核心內容區塊適配 (左右改上下)
+       ========================================= */
+    .content-wrapper {
+        flex-direction: column; 
+        margin: 0 20px 20px 20px; 
+        padding: 20px;
+        min-height: auto; 
+        gap: 20px;
+    }
+
+    /* 左側控制區 */
+    .control-section {
+        flex: none;
+        width: 100%;
+        max-width: 100%;
+        flex-direction: column; 
+        gap: 20px;
+    }
+
+    /* 機台選單 */
+    .machine-menu {
+        width: 100%; 
+        flex-direction: row; 
+        justify-content: center;
+        padding: 15px 0;
+        gap: 20px;
+    }
+
+    /* 機台顯示面板 */
+    .machine-panel {
+        width: 100%;
+        max-width: 600px;
+        align-items: center; 
+        margin: 0 auto;
+    }
+
+    /* 右側控制看板 */
+    .control-board {
+        flex: none;
+        width: 100%;
+        max-width: 650px;
+        margin: 20px auto 0; 
+    }
+
+    .board-content {
+        width: 90%;
+        gap: 20px;
+    }
+
+    .func-group {
+        gap: 15px; 
+        margin-top: 20px;
+    }
+
+    .control-label {
+        font-size: 16px;
+        padding: 8px 12px;
+        width: 220px; 
+    }
+
+    .control-adjust button {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+
+    .time-box {
+        width: 120px;
+        font-size: 22px;
+        padding: 6px 0;
+    }
+
+    .uph-badge {
+        font-size: 16px;
+        padding: 6px 15px;
+        top: 0px;
+        left: 0px;
+    }
+
+    /* =========================================
+       2. 導覽列強制防跑版修正 (加入 !important)
+       ========================================= */
+    .brand-logo {
+        font-size: 35px !important;
+        margin-left: 10px !important;
+    }
+
+    .nav-menu {
+        margin-right: 10px !important;
+    }
+
+    .nav-btn {
+        font-size: 18px !important;
+        padding: 8px 15px !important;
+    }
+
+    .nav-settings-btn img,
+    .nav-status-icon-btn img {
+        width: 45px !important;
+        height: 45px !important;
+    }
+
+    .nav-settings-btn {
+        padding: 0 10px !important;
+    }
+
+    .nav-menu a:last-child {
+        padding-right: 10px !important; 
+    }
+}
+
+/* =========================================
+   📱 手機版極端壓縮 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* 當螢幕真的窄到連縮小都塞不下時，導覽列改為上下兩排 */
+    .header-main-row {
+        flex-direction: column !important;
+        justify-content: center !important;
+        padding: 10px 0 !important;
+    }
+    
+    .nav-menu {
+        margin: 10px auto 0 auto !important;
+        flex-wrap: wrap !important; 
+        justify-content: center !important;
+    }
+}

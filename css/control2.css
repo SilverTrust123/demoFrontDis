@@ -322,3 +322,110 @@
 .confirm-btn:hover { background: #357abd; }
 .confirm-btn:active { transform: scale(0.95); }
 .confirm-btn:disabled { background: #888; cursor: not-allowed; }
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 核心內容區塊：從左右分割改為上下排列 */
+    .content-wrapper {
+        flex-direction: column; /* 改為上下疊放 */
+        margin: 0 20px 20px 20px; /* 縮小左右外距 */
+        padding: 20px;
+        min-height: auto; /* 解除最低高度限制 */
+        gap: 20px;
+    }
+
+    /* --- 左側控制區 (機台選單與圖片) --- */
+    .control-section {
+        flex: none;
+        width: 100%;
+        max-width: 100%;
+        min-width: unset;
+        flex-direction: column; /* 讓機台選單跟圖片也變成上下排 */
+        gap: 20px;
+    }
+
+    /* 機台選單：從直向改為橫向排列 (放在圖片上方) */
+    .machine-menu {
+        width: 100%; /* 佔滿整行 */
+        height: auto;
+        flex-direction: row; /* 橫向排列 */
+        justify-content: center;
+        padding: 15px 0;
+        gap: 30px; /* 拉近按鈕距離 */
+    }
+
+    /* 機台顯示面板 */
+    .machine-panel {
+        width: 100%;
+        max-width: 600px;
+        align-items: center; /* 讓標題與圖片置中 */
+        margin: 0 auto;
+    }
+
+    .machine-title {
+        font-size: 28px;
+    }
+
+    /* --- 右側控制看板 (螢幕區) --- */
+    .control-board {
+        flex: none;
+        width: 100%;
+        max-width: 650px;
+        margin: 20px auto 0; /* 置中並與上方保持距離 */
+    }
+
+    /* 縮小控制看板內部的所有元素，避免跑版 */
+    .board-content {
+        width: 90%;
+        gap: 20px;
+    }
+
+    .func-group {
+        gap: 15px; /* 縮小行距 */
+        margin-top: 20px;
+    }
+
+    /* 控制列排版微縮 */
+    .control-label {
+        font-size: 16px;
+        padding: 8px 12px;
+        width: 220px; /* 縮減寬度避免擠壓 */
+    }
+
+    /* 加減按鈕縮小 */
+    .control-adjust button {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+
+    /* 數字顯示框縮小 */
+    .time-box {
+        width: 120px;
+        font-size: 22px;
+        padding: 6px 0;
+    }
+
+    /* 產能標籤稍微變小並移位 */
+    .uph-badge {
+        font-size: 16px;
+        padding: 6px 15px;
+        top: 0px;
+        left: 0px;
+    }
+
+    /* 翻頁箭頭微調 */
+    .arrow-btn {
+        width: 8cqw; 
+        height: 8cqw;
+        bottom: -3.5cqw; 
+        right: -3.5cqw; 
+    }
+
+    /* 浮動儲存條位置微調，避免被手指遮擋 */
+    .floating-confirm-bar {
+        bottom: 5px;
+    }
+}

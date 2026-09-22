@@ -118,3 +118,90 @@
 .btn-nonmetal { background: #ffaa00; }
 .sys-btn:hover { filter: brightness(1.1); }
 .sys-btn.active { filter: brightness(0.8); border: 2px solid #333; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 1. 核心容器：改為上下排列，並允許上下滾動 */
+    .content-wrapper {
+        flex-direction: column; /* 左右並排改為上下疊放 */
+        height: auto; /* 解除高度鎖定 */
+        min-height: calc(100vh - 85px);
+        padding: 15px; /* 縮小四周留白，爭取空間 */
+        overflow-y: auto; /* 解除 hidden，允許畫面上下滑動！ */
+        gap: 15px;
+    }
+
+    /* ⚡ 2. 左側 3D 視圖區：固定高度在上方 */
+    .left-panel {
+        flex: none; 
+        width: 100%;
+        height: 50vh; /* 佔據螢幕一半的高度 */
+        min-height: 400px; /* 保底高度，確保 3D 模型不會縮太小 */
+    }
+
+    /* ⚡ 3. 右側參數控制區：佔滿寬度放在下方 */
+    .right-panel {
+        flex: none;
+        width: 100%;
+        min-width: unset; /* 解除原本 380px 的限制 */
+        max-width: 100%;  /* 解除原本 450px 的限制，讓它佔滿寬度 */
+        overflow-y: visible; /* 因為外層已經可以滾動了，這裡不需要內部滾動條 */
+        margin-bottom: 30px; /* 底部留一點空間給浮動儲存條 */
+    }
+
+    /* ⚡ 4. 參數列表改為兩欄式排版 (善用平板寬度) */
+    .right-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 將參數清單分成左右兩欄，節省垂直空間 */
+        gap: 15px;
+    }
+
+    /* 讓頂部的雙軌按鈕橫跨兩欄 */
+    .system-controls {
+        grid-column: 1 / -1; 
+    }
+
+    /* ⚡ 5. 標籤與浮動視窗微縮調整 */
+    .uph-badge {
+        font-size: 16px;
+        padding: 6px 15px;
+        top: 10px; left: 10px;
+    }
+
+    .dt-status-box {
+        min-width: 140px;
+        padding: 8px;
+        top: 10px; right: 10px;
+    }
+
+    .dt-status-value {
+        font-size: 14px;
+    }
+
+    /* ⚡ 6. 底部浮動儲存條適配 */
+    .floating-confirm-bar {
+        width: 90%; /* 避免太寬超出螢幕 */
+        max-width: 400px;
+        justify-content: center; /* 內容置中 */
+        bottom: 10px;
+        /* 調整隱藏時的 Y 軸距離，確保動畫順暢 */
+        transform: translateX(-50%) translateY(100px); 
+    }
+}
+
+/* =========================================
+   📱 手機版專屬適配 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* 手機畫面太窄，參數區改回單欄疊放 */
+    .right-panel {
+        grid-template-columns: 1fr; 
+    }
+    
+    .left-panel {
+        height: 40vh;
+        min-height: 300px;
+    }
+}

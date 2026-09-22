@@ -386,3 +386,58 @@ html, body {
 .nav-status-icon-btn:hover img {
     transform: scale(1.08);
 }
+
+/* =========================================
+   📱 導覽列響應式適配 (螢幕寬度 1200px 以下自動縮小)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+    /* 1. 縮小 Logo，釋放大量左側空間 */
+    .brand-logo {
+        font-size: 35px;
+        margin-left: 10px;
+    }
+
+    /* 2. 減少導覽列整體的右側邊距 */
+    .nav-menu {
+        margin-right: 10px;
+    }
+
+    /* 3. 縮小導覽列文字按鈕與間隔 */
+    .nav-btn {
+        font-size: 18px;
+        padding: 8px 15px; /* 大幅減少左右 padding */
+    }
+
+    /* 4. 縮小巨型設定按鈕 (齒輪) 與狀態圖示 */
+    .nav-settings-btn img,
+    .nav-status-icon-btn img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .nav-settings-btn {
+        padding: 0 10px;
+    }
+
+    .nav-menu a:last-child {
+        padding-right: 10px; 
+    }
+}
+
+/* =========================================
+   📱 手機版極端壓縮 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* 當螢幕真的窄到連縮小都塞不下時，改為上下兩排 */
+    .header-main-row {
+        flex-direction: column;
+        justify-content: center;
+        padding: 10px 0;
+    }
+    
+    .nav-menu {
+        margin: 10px auto 0 auto;
+        flex-wrap: wrap; /* 允許文字按鈕折行 */
+        justify-content: center;
+    }
+}

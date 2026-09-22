@@ -177,3 +177,78 @@
 .nav-item-dropdown:hover .dropdown-content {
     display: block;
 }
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 1. 核心容器：從左右分欄改為上下排列 */
+    .content-wrapper {
+        flex-direction: column; /* 左右並排改為上下疊放 */
+        margin: 10px 20px 15px 20px; /* 縮小左右外框距離 */
+        padding: 30px;
+        gap: 40px; /* 增加上下兩個區塊的間距 */
+        min-height: auto; /* 解除高度限制 */
+    }
+
+    /* ⚡ 2. 左側：報表下載區適配 */
+    .report-left-section {
+        width: 100%; /* 佔滿整行 */
+        gap: 25px; /* 列與列之間的間距微調 */
+    }
+
+    .report-controls {
+        flex-wrap: wrap; /* 允許標籤、選單、按鈕在寬度不足時自動換行 */
+        justify-content: center; /* 換行後置中排列 */
+        gap: 15px;
+    }
+
+    .report-label-box {
+        min-width: 160px; /* 標籤稍微縮小一點 */
+        font-size: 1rem;
+    }
+
+    .report-select-container {
+        /* 在平板上，如果跟按鈕並排太擠，可以讓它撐滿整行或給予更大的彈性 */
+        flex-basis: 60%; 
+        min-width: 250px;
+    }
+
+    .styled-download-btn {
+        flex-grow: 1; /* 按鈕填補剩下的空間 */
+        max-width: 200px;
+    }
+
+    /* ⚡ 3. 右側：選擇時間段與互動日曆適配 */
+    .report-right-section {
+        width: 100%;
+        align-items: center; /* 在平板上，讓日曆跟標題置中顯示會比較好看 */
+        border-top: 2px solid #ddd; /* 加一條分隔線區隔上方的下載區 */
+        padding-top: 30px;
+    }
+
+    .time-title {
+        font-size: 1.3rem;
+    }
+
+    .date-inputs {
+        justify-content: center; /* 日期輸入框置中 */
+        flex-wrap: wrap; /* 如果螢幕太小允許換行 */
+    }
+}
+
+/* =========================================
+   📱 手機版專屬適配 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* ⚡ 手機螢幕更窄，讓下載列的每一個元件都獨立成一行 */
+    .report-select-container {
+        flex-basis: 100%; 
+        min-width: 100%;
+    }
+
+    .report-label-box, .styled-download-btn {
+        width: 100%;
+        max-width: 100%;
+    }
+}

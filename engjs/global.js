@@ -255,7 +255,7 @@ async function handleResumeStart() {
 }
 
 /* ==============================================================
- * ⚡ Global monitor main program: Integrate API to get dynamic Sensor Border limit values
+ * ⚡ Global monitor main program: Integrate API to get dynamic Sensor Border limit values and Log 1-minute filtering
  * ============================================================== */
 async function startGlobalMonitor() {
     const CAM_ENDPOINT = `${CONFIG.API_BASE}/camData/`;
@@ -263,7 +263,7 @@ async function startGlobalMonitor() {
     const PLC_STATE_ENDPOINT = `${CONFIG.API_BASE}/plc/state`;
     const LOAD_ENDPOINT = `${CONFIG.API_BASE}/Load/allFilterLoadStats`;
     const LOG_ERROR_ENDPOINT = `${CONFIG.API_BASE}/log/error`;
-    const SENSOR_BORDER_ENDPOINT = `${CONFIG.API_BASE}/sensorBorder/getCurrentSensorBorder`; // ⚡ Added limits API
+    const SENSOR_BORDER_ENDPOINT = `${CONFIG.API_BASE}/sensorBorder/getCurrentSensorBorder`;
     
     let lastMetalCount = null;
     let lastNonMetalCount = null;
@@ -332,11 +332,24 @@ async function startGlobalMonitor() {
                         }
                     }
                 }
-                // 7. Error reported in log
+                
+                // 7. ⚡ Error reported in log (limited to new errors within 1 minute)
                 if (logErrorRes) {
-                    const hasError = Array.isArray(logErrorRes) ? logErrorRes.length > 0 : Object.keys(logErrorRes).length > 0;
-                    if (hasError) {
-                        window.showError("System exception: Error message detected from /log/error endpoint!");
+                    // Ensure logErrorRes is an array, if it's a single object, wrap it in an array
+                    let errors = Array.isArray(logErrorRes) ? logErrorRes : [logErrorRes];
+                    
+                    // Find if there are errors "occurred within 1 minute" in the array
+                    let hasRecentError = false;
+                    for (let err of errors) {
+                        // If there is no timestamp field, or the difference is less than 60000ms, consider it a recent error
+                        if (!err.timestamp || (now - err.timestamp <= 60000)) {
+                            hasRecentError = true;
+                            break;
+                        }
+                    }
+
+                    if (hasRecentError) {
+                        window.showError("System exception: Detected latest error message from /log/error endpoint!");
                         return;
                     }
                 }
@@ -375,20 +388,19 @@ async function startGlobalMonitor() {
                     lastNonMetalCount = curNonMetal;
                 } catch (e) {}
 
-                // 3. ⚡ Temperature setting exception (Changed to read temp_1 and temp_2 limits from /sensorBorder/getCurrentSensorBorder)
+                // 3. Temperature setting exception
                 if (sensorRes && sensorRes.temp && borderRes) {
                     const maxTemp1 = borderRes.temp_1 !== undefined ? borderRes.temp_1 : 999;
                     const maxTemp2 = borderRes.temp_2 !== undefined ? borderRes.temp_2 : 999;
 
                     for (const item of sensorRes.temp) {
-                        // Assume matching by deviceId or index (e.g., temp_1 corresponds to the first group, temp_2 to the second)
                         let currentMax = maxTemp1;
                         if (item.deviceId && item.deviceId.includes('2')) {
                             currentMax = maxTemp2;
                         }
 
                         if (item.temperature > currentMax) {
-                            window.showToast(`Warning: ${item.deviceId || 'Sensor'} temperature setting abnormally exceeded!\nCurrent: ${item.temperature}°C (Limit: ${currentMax}°C)`);
+                            window.showToast(`Warning: ${item.deviceId || 'Sensor'} temperature abnormally exceeded limits!\nCurrent: ${item.temperature}°C (Limit: ${currentMax}°C)`);
                             return;
                         }
                     }
@@ -400,9 +412,9 @@ async function startGlobalMonitor() {
                     return;
                 }
 
-                // 5. General Alarm interception
+                // 5. General Alarm warning interception
                 if (sensorRes && sensorRes.alarm) {
-                    window.showToast(`Warning (Alarm): Received warning message reported by the system!`);
+                    window.showToast(`Warning (Alarm): Received system warning message!`);
                     return;
                 }
             }
@@ -576,7 +588,6 @@ async function handleLoginSubmit() {
                 throw new Error("Authorization code not received");
             }
         } else {
-            // ⚡ Incorrect account or password ➔ Trigger bottom toast warning
             window.showToast("Warning: Incorrect account or password, please try again!");
             throw new Error(result.message || "Verification failed");
         }
@@ -599,7 +610,6 @@ function checkLoginStatus() {
         if (now - loginTime > CONFIG.EXPIRE_TIME) {
             localStorage.removeItem(CONFIG.AUTH_KEY);
             localStorage.removeItem(CONFIG.TIME_KEY);
-            // ⚡ Login time exceeded ➔ Trigger bottom toast warning
             window.showToast("Warning: Login authorization expired, please log in again!");
             showTimeoutModal(); 
             return;

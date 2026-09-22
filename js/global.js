@@ -255,7 +255,7 @@ async function handleResumeStart() {
 }
 
 /* ==============================================================
- * ⚡ 全域監控主程式：整合 API 取得動態 Sensor Border 上限值
+ * ⚡ 全域監控主程式：整合 API 取得動態 Sensor Border 上限值與 Log 1 分鐘過濾
  * ============================================================== */
 async function startGlobalMonitor() {
     const CAM_ENDPOINT = `${CONFIG.API_BASE}/camData/`;
@@ -263,7 +263,7 @@ async function startGlobalMonitor() {
     const PLC_STATE_ENDPOINT = `${CONFIG.API_BASE}/plc/state`;
     const LOAD_ENDPOINT = `${CONFIG.API_BASE}/Load/allFilterLoadStats`;
     const LOG_ERROR_ENDPOINT = `${CONFIG.API_BASE}/log/error`;
-    const SENSOR_BORDER_ENDPOINT = `${CONFIG.API_BASE}/sensorBorder/getCurrentSensorBorder`; // ⚡ 新增上限值 API
+    const SENSOR_BORDER_ENDPOINT = `${CONFIG.API_BASE}/sensorBorder/getCurrentSensorBorder`;
     
     let lastMetalCount = null;
     let lastNonMetalCount = null;
@@ -332,15 +332,45 @@ async function startGlobalMonitor() {
                         }
                     }
                 }
-                // 7. log 中報 error
+                
+// 7. ⚡ log 中報 error (僅限 1 分鐘內發生的新錯誤)
                 if (logErrorRes) {
-                    const hasError = Array.isArray(logErrorRes) ? logErrorRes.length > 0 : Object.keys(logErrorRes).length > 0;
-                    if (hasError) {
-                        window.showError("系統異常：偵測到 /log/error 端點回報錯誤訊息！");
+                    // 根據 API 結構，錯誤清單可能在 logErrorRes.response 陣列中
+                    let errors = [];
+                    if (Array.isArray(logErrorRes.response)) {
+                        errors = logErrorRes.response;
+                    } else if (Array.isArray(logErrorRes)) {
+                        errors = logErrorRes;
+                    } else {
+                        errors = [logErrorRes];
+                    }
+                    
+                    let hasRecentError = false;
+                    let latestErrMsg = "";
+
+                    for (let err of errors) {
+                        if (!err || !err.timestamp) continue;
+
+                        // ⚠️ 關鍵修正：將後端的「秒」級 timestamp 乘以 1000 轉換為「毫秒」
+                        let errTimeMs = err.timestamp * 1000;
+                        
+                        // 計算時間差 (毫秒)
+                        let timeDiff = now - errTimeMs;
+
+                        // 判斷是否在 60000 毫秒 (1 分鐘) 內發生，且避免未來時間的誤判
+                        if (timeDiff <= 60000 && timeDiff >= 0) {
+                            hasRecentError = true;
+                            // 抓取第一筆最新錯誤的訊息來顯示
+                            latestErrMsg = err.message || "無詳細訊息";
+                            break;
+                        }
+                    }
+
+                    if (hasRecentError) {
+                        window.showError(`系統異常：1分鐘內發生最新錯誤！\n詳細資訊: ${latestErrMsg}`);
                         return;
                     }
                 }
-            }
 
             // ==========================================
             // ⚠️ 警示 (Toast / 右下角小警示)
@@ -375,13 +405,12 @@ async function startGlobalMonitor() {
                     lastNonMetalCount = curNonMetal;
                 } catch (e) {}
 
-                // 3. ⚡ 設定溫度異常 (改為讀取 /sensorBorder/getCurrentSensorBorder 的 temp_1 與 temp_2 上限值比對)
+                // 3. 設定溫度異常
                 if (sensorRes && sensorRes.temp && borderRes) {
                     const maxTemp1 = borderRes.temp_1 !== undefined ? borderRes.temp_1 : 999;
                     const maxTemp2 = borderRes.temp_2 !== undefined ? borderRes.temp_2 : 999;
 
                     for (const item of sensorRes.temp) {
-                        // 假設根據 deviceId 或索引進行比對 (例如 temp_1 對應第一組，temp_2 對應第二組)
                         let currentMax = maxTemp1;
                         if (item.deviceId && item.deviceId.includes('2')) {
                             currentMax = maxTemp2;

@@ -180,3 +180,55 @@
 
 .prev { left: 15px; }
 .next { right: 15px; }
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 1. 調整主容器，爭取平板上的最大空間 */
+    .content-wrapper {
+        margin: 10px 20px 15px 20px; /* 縮小左右外距 */
+        padding: 30px 15px; /* 縮小內部留白 */
+        max-height: none; /* 解除高度限制，避免內容被截斷 */
+    }
+
+    /* ⚡ 2. 調整輪播單頁的卡片排列方式 */
+    .carousel-page {
+        flex-wrap: wrap; /* 允許卡片在空間不足時折行 */
+        justify-content: center;
+        gap: 20px; /* 統一卡片之間的間距 */
+    }
+
+    /* ⚡ 3. 卡片寬度放大，從 28% 改為佔 45%，讓一排顯示 2 張卡片最舒適 */
+    .sensor-card {
+        width: 45%; 
+        min-width: 250px; /* 設定最小寬度，避免縮太小 */
+    }
+
+    /* 圖片高度稍微縮小，配合平板比例 */
+    .sensor-photo, .photo-placeholder {
+        height: 150px;
+    }
+
+    /* ⚡ 4. 微調左右切換按鈕的位置與大小，避免擋到卡片 */
+    .carousel-nav {
+        width: 40px;
+        height: 40px;
+    }
+    .prev { left: 5px; }
+    .next { right: 5px; }
+}
+
+/* =========================================
+   📱 手機版專屬適配 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* ⚡ 手機螢幕更窄，讓卡片佔滿整排 (一排 1 張) */
+    .sensor-card {
+        width: 90%; 
+    }
+
+    .carousel-page {
+        gap: 30px; /* 增加上下間距 */
+    }
+}

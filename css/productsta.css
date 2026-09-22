@@ -143,3 +143,112 @@
     margin-bottom: 8px;
     color: #00FFFF; /* ✨ 關鍵修正：改為淺青色 (Cyan) */
 }
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 核心內容區塊：從左右並排改為上下疊加，避免卡片互擠導致工具列點不到 */
+    .content-wrapper {
+        flex-direction: column !important; /* 強制改為上下排列 */
+        align-items: stretch;
+        margin: 10px 20px 20px 20px; /* 縮小左右外框的距離，爭取內容空間 */
+        padding: 20px;
+        max-height: none; /* 解除高度限制，讓它隨卡片自然往下長 */
+        overflow-y: visible;
+        gap: 30px;
+    }
+
+    /* 頂部 Logo 字體微縮 */
+    .brand-logo {
+        font-size: 38px;
+        margin-left: 10px;
+    }
+
+    /* 讓兩張卡片 (金屬/非金屬) 都能水平展開 */
+    .stability-card, .non-metal-standalone {
+        width: 100%;
+        flex: none; /* 移除 Flex 的等比伸縮，改用絕對寬度佔滿 */
+    }
+
+    /* ⚡ 調整外層卡片的間距與陰影 */
+    .stability-card {
+        padding: 15px; 
+    }
+
+    /* ⚡ 直排文字微調：在平板上文字不宜過大 */
+    .vertical-text {
+        font-size: 2rem; 
+        padding-right: 10px;
+        letter-spacing: 1px;
+    }
+
+    /* ⚡ 內層深色卡片調整為橫向排列 (圖片在左，數據在右)，善用平板的寬度 */
+    .card-inner {
+        flex-direction: row; /* 在平板上卡片內部改為水平排列 */
+        align-items: stretch;
+    }
+
+    /* 圖片區域調整 */
+    .image-section {
+        flex: 1;
+        border-bottom: none; /* 因為改成並排了，不需要底部邊框 */
+        border-right: 2px solid #A3C9CB; /* 改為右側邊框分隔數據區 */
+    }
+
+    .image-section img {
+        max-height: 250px;
+    }
+
+    /* 數據區域調整 */
+    .data-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 讓數據內容在右側垂直居中 */
+        padding: 10px;
+    }
+
+    /* 數據字體微調 */
+    .stat-title {
+        font-size: 1.4rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+
+    .cycle-list {
+        font-size: 1.2rem;
+    }
+}
+
+/* =========================================
+   📱 手機版專屬適配 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* 如果平板以下更窄的螢幕，卡片內部再改回上下排列 */
+    .card-inner {
+        flex-direction: column; 
+    }
+
+    .image-section {
+        border-right: none;
+        border-bottom: 2px solid #A3C9CB; 
+    }
+
+    .image-section img {
+        max-height: 180px;
+    }
+
+    .vertical-text {
+        font-size: 1.5rem; 
+        writing-mode: horizontal-tb; /* 空間真的太小的話，文字改回橫排 */
+        padding: 0 0 10px 0;
+    }
+
+    .stability-card {
+        flex-direction: column; /* 整張卡片改為垂直疊放 */
+    }
+}

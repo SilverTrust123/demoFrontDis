@@ -421,3 +421,107 @@ body {
     border-bottom: 15px solid #333;
     transition: left 0.4s ease-out; 
 }
+/* =========================================
+   📱 平板版專屬適配 (螢幕寬度 1024px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 1200px) {
+
+    /* ⚡ 1. 調整主網格排列 (從 3 欄變 2 欄) */
+    .main-grid-container {
+        height: auto; /* 解除 100vh 高度限制，允許往下滾動 */
+        min-height: calc(100vh - 90px);
+        grid-template-columns: 1fr 1fr; /* 改為左右兩欄 */
+        grid-template-rows: auto auto auto; /* 改為上下三列 */
+        grid-template-areas:
+            "lt mt"  /* 第一排：左上(產能)、中上(稼動率) */
+            "lb mb"  /* 第二排：左下(金屬)、中下(非金屬) */
+            "rt rb"; /* 第三排：右上(碳足跡)、右下(伺服器壓力) */
+    }
+
+    /* ⚡ 2. 避免卡片內容被擠扁，設定保底高度 */
+    .panel-card {
+        min-height: 420px; 
+    }
+
+    /* ⚡ 3. 巨型標題字體縮小 */
+    /* 平板放不下 50px 的標題，統一縮微到 38px 避免換行或超框 */
+    .efficiency-title, 
+    .area-mt .card-header, 
+    .rt-header, 
+    .area-lb .card-header, 
+    .area-mb .card-header, 
+    .rb-header {
+        font-size: 38px;
+    }
+
+    /* 標題附屬的數據值縮小 */
+    .rt-header span, .rb-header span {
+        font-size: 32px; 
+    }
+
+    /* ⚡ 4. 區塊 1 (左上)：產能效率條字體微調 */
+    .eff-label {
+        font-size: 24px;
+        width: 80px; /* 留多一點空間給黃色進度條 */
+    }
+    .efficiency-val {
+        font-size: 24px;
+        width: 80px;
+    }
+
+    /* ⚡ 5. 區塊 3 (右上)：巨型葉子圖示縮小 */
+    /* 避免 300px 的葉子撐破卡片 */
+    .carbon-icon {
+        width: 200px;
+        height: 200px;
+    }
+
+    /* ⚡ 6. 區塊 4 & 5 (左下/中下)：金屬與非金屬的數據清單縮小 */
+    .area-lb, .area-mb {
+        height: auto; /* 解除原本寫死的 130% 高度 */
+    }
+
+    .stats-list {
+        font-size: 24px;
+        margin: 10px 0 15px 10px;
+    }
+
+    .stat-blue, .stat-red {
+        font-size: 26px;
+    }
+
+    .pill-title {
+        font-size: 16px;
+        padding: 6px 15px;
+    }
+}
+
+/* =========================================
+   📱 手機版專屬適配 (螢幕寬度 768px 以下觸發)
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* ⚡ 手機螢幕太窄，全部打平變成直立的一直線排列 (1 欄 6 列) */
+    .main-grid-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "lt"
+            "mt"
+            "lb"
+            "mb"
+            "rt"
+            "rb";
+    }
+
+    .panel-card {
+        min-height: 380px;
+    }
+
+    .efficiency-title, 
+    .area-mt .card-header, 
+    .rt-header, 
+    .area-lb .card-header, 
+    .area-mb .card-header, 
+    .rb-header {
+        font-size: 32px;
+    }
+}
