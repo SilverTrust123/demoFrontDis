@@ -16,9 +16,11 @@
 
     <header class="top-section">
         <div class="header-main-row">
-            <h1 class="brand-logo">Backend Status</h1>
+            <h1 class="brand-logo">Control Interface</h1>
 
             <nav class="nav-menu">
+                
+                <!-- 1. Home Dropdown -->
                 <div class="nav-item-dropdown">
                     <a href="index.html" class="nav-btn">Home</a>
                     <div class="dropdown-content">
@@ -72,7 +74,7 @@
 
                 <div class="nav-divider"></div>
 
-                <!-- 3. Operation Interface Dropdown -->
+                <!-- 3. Control Interface Dropdown -->
                 <div class="nav-item-dropdown">
                     <a href="control.html" class="nav-btn">Operation Interface</a>
                     <div class="dropdown-content">
@@ -89,7 +91,7 @@
 
                 <div class="nav-divider"></div>
 
-                <!-- 4. History Data Dropdown -->
+                <!-- 4. Historical Data Dropdown -->
                 <div class="nav-item-dropdown">
                     <a href="history.html" class="nav-btn">History Data</a>
                     <div class="dropdown-content">
@@ -118,8 +120,9 @@
 
                 <div class="nav-divider"></div>
 
-                <!-- 5. Other Dropdown -->
+                <!-- 5. Others Dropdown -->
                 <div class="nav-item-dropdown">
+                    <!-- ⚡ 修正 active-tab 位置 -->
                     <a href="backend.html" class="nav-btn active-tab">Other</a>
                     <div class="dropdown-content">
                         <a href="todayexpect.html" class="dropdown-link">
@@ -140,6 +143,7 @@
                         </a>
                     </div>
                 </div>
+
             </nav>
         </div>
 
@@ -159,30 +163,47 @@
             </div>
 
             <div class="process-time-wrapper">
-                <div class="process-time-pill">Recent Processing Time : <span id="process-time-val">0</span> s</div>
+                <div class="process-time-pill">Latest Process Time : <span id="process-time-val">0</span> ms</div>
             </div>
         </div>
 
         <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: stretch; gap: 30px; width: 100%; flex: 1;">
+            
+            <!-- 左側圓餅圖區域 -->
             <div class="chart-section pie-section">
-                <h2 class="chart-title">Overall System Operating Metrics</h2>
+                <h2 class="chart-title">Thread Operating Status</h2>
                 <div class="pie-container">
                     <canvas id="statusPieChart"></canvas>
                 </div>
             </div>
 
+            <!-- 右側儀表板區域 -->
             <div class="chart-section gauge-section">
-                <h2 class="chart-title">Pressure Load Metrics</h2>
-                <div class="gauge-container">
-                    <div class="gauge-dial" id="gaugeDial">
-                        <div class="gauge-progress" id="gaugeProgress"></div>
+                <h2 class="chart-title">Process Time Monitoring</h2>
+                
+                <div class="gauge-container" style="max-width: 100%; width: 100%; align-items: center; gap: 60px;">
+                    
+                    <!-- 🟢 上方半圓圖與小文字區 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-wrap: wrap; width: 100%;">
+                        <div class="gauge-dial" id="gaugeDial" style="flex-shrink: 0;">
+                            <div class="gauge-progress" id="gaugeProgress"></div>
+                        </div>
+                        <span style="font-size: 22px; font-weight: bold; color: #555; letter-spacing: 2px;">Queue Size</span>
                     </div>
-                    <div class="gauge-bar-wrapper">
-                        <div class="gauge-rainbow-bar"></div>
-                        <div class="gauge-needle" id="gaugeNeedle"></div>
+
+                    <!-- 🔴 下方長條圖與小文字區 -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 25px; flex-wrap: wrap; width: 100%;">
+                        <div class="gauge-bar-wrapper" style="margin-top: 0; width: 100%; max-width: 440px; flex-shrink: 0;">
+                            <div class="gauge-rainbow-bar"></div>
+                            <div class="gauge-needle" id="gaugeNeedle"></div>
+                            <!-- 底部刻度標示 -->
+                        </div>
+                        <span style="font-size: 22px; font-weight: bold; color: #555; letter-spacing: 2px;">Process Time</span>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </main>
 

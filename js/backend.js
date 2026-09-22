@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ⚡ 獨立控制：下方長條圖指針 (對應 Latest Process Time)
-    function setLinearGaugeValue(value, max = 2500) {
+    function setLinearGaugeValue(value, max = 1000) {
         let constrainedPercent = Math.max(0, Math.min(100, (value / max) * 100));
         if (needle) {
             needle.style.left = `${constrainedPercent}%`;
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setSemiCircleValue(queueSize, MAX_QUEUE_LIMIT);
 
                 // 2. 更新下方長條圖指針 (依照 lastestProcessTime，極限為 2500ms)
-                const MAX_TIME_LIMIT = 2500;
+                const MAX_TIME_LIMIT = 1000;
                 setLinearGaugeValue(lastestProcessTime, MAX_TIME_LIMIT);
             }
 

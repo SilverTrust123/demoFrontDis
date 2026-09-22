@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Register ChartDataLabels plugin
+    // 註冊 ChartDataLabels 插件
     if (typeof ChartDataLabels !== 'undefined') {
         Chart.register(ChartDataLabels);
     }
 
-    // Global variable to store filtered detailed data for Tooltip display
+    // 全域變數保存過濾後的詳細數據，供 Tooltip 顯示使用
     let filterLoadData = {
         total_thread: 0,
         busy_thread: 0,
@@ -13,11 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
         blocked_thread: 0
     };
 
-    // ===== 1. Initialize Pie Chart =====
+ // ===== 1. 初始化圓餅圖 =====
     const pieCanvas = document.getElementById('statusPieChart');
     const ctx = pieCanvas.getContext('2d');
 
-    // ⚡ Double assurance: Force tooltip to smoothly fade out when cursor leaves canvas
+    // ⚡ 雙重保險：當滑鼠徹底離開畫布時，強制讓提示框平滑淡出消失
     pieCanvas.addEventListener('mouseleave', () => {
         const tooltipEl = document.getElementById('chartjs-external-tooltip');
         if (tooltipEl) {
@@ -32,10 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [{
                 data: [0, 0, 0, 0], 
                 backgroundColor: [
-                    '#7add81f9', // runnable - Green
-                    '#89def8',   // waiting - Blue
-                    '#e373fd',   // blocked - Pink/Purple
-                    '#ff7c7c'    // timed_waiting - Red
+                    '#89def8',   // waiting - 藍色
+                    '#e373fd',   // blocked - 紫粉色
+                    '#ff7c7c',    
+                    '#7add81f9' 
                 ],
                 borderColor: '#ffffff',
                 borderWidth: 2,
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
-                // Let Tooltip float outside pie chart and disappear smoothly
+                // 讓 Tooltip 完美飄浮在圓餅圖外側並自然消失
                 tooltip: {
                     enabled: true,
                     position: 'average',
@@ -66,8 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             tooltipEl.style.padding = '12px';
                             tooltipEl.style.pointerEvents = 'none';
                             
-                            // ⚡ Extend opacity transition duration to 0.3s for smooth fade-out
-                            // Keep coordinate movement (left, top, transform) at 0.1s for responsiveness
                             tooltipEl.style.transition = 'opacity 0.3s ease, left 0.1s ease, top 0.1s ease, transform 0.1s ease';
                             
                             tooltipEl.style.fontFamily = 'monospace';
@@ -80,16 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const tooltipModel = context.tooltip;
 
-                        // ⚡ Trigger fade-out effect when mouse leaves circular area (Opacity becomes 0)
+                        // 當滑鼠離開圓形區塊 (Opacity 變 0) 時，觸發淡出效果
                         if (tooltipModel.opacity === 0) {
                             tooltipEl.style.opacity = 0;
                             return;
                         }
 
-                        // Pre-declare status label variable for subsequent positioning
                         let statusLabel = '';
 
-                        // Assemble display content
+                        // 組裝顯示內容 (翻譯為英文)
                         if (tooltipModel.body) {
                             const dataIndex = tooltipModel.dataPoints[0].dataIndex;
                             statusLabel = context.chart.data.labels[dataIndex];
@@ -109,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             tooltipEl.innerHTML = innerHtml;
                         }
 
-                        // Calculate center and radius to push Tooltip outside the circle
+                        // 計算圓心與半徑，將 Tooltip 推到圓外
                         const position = context.chart.canvas.getBoundingClientRect();
                         const chartArea = context.chart.chartArea;
                         
@@ -124,21 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const distance = radius + 30;
 
-                        // Default calculated dynamic coordinates
+                        // 預設計算出來的動態座標
                         let finalX = centerX + Math.cos(angle) * distance;
                         let finalY = centerY + Math.sin(angle) * distance;
                         let translateX = Math.cos(angle) > 0 ? '0%' : '-100%';
                         let translateY = Math.sin(angle) > 0 ? '0%' : '-100%';
 
-                        // ⚡ Force coordinates for timed_waiting to top-left corner
+                        // 針對 timed_waiting 強制將座標鎖定在「左上角」
                         if (statusLabel === 'timed_waiting') {
-                            finalX = centerX - radius - 10; // Push left outside the circle
-                            finalY = centerY - radius - 10; // Push top outside the circle
-                            translateX = '-70%';           // Extend yellow box further to the left
-                            translateY = '-50%';           // Extend yellow box further upwards
+                            finalX = centerX - radius - 10; 
+                            finalY = centerY - radius - 10; 
+                            translateX = '-70%';           
+                            translateY = '-50%';           
                         }
 
-                        // Display and position Tooltip
+                        // 顯示並定位 Tooltip
                         tooltipEl.style.opacity = 1;
                         tooltipEl.style.left = finalX + 'px';
                         tooltipEl.style.top = finalY + 'px';
@@ -163,17 +160,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===== 2. Pressure Load Metrics Control =====
+    // ===== 2. 壓力負載指標控制 (一分為二) =====
     const needle = document.getElementById('gaugeNeedle');
     const gaugeContainer = document.querySelector('.gauge-container');
 
-    function setGaugeValue(value, max = 100) {
+    // 獨立控制：上方半圓圖 (對應 Queue Size)
+    function setSemiCircleValue(value, max = 100) {
         let constrainedPercent = Math.max(0, Math.min(100, (value / max) * 100));
-        if (needle) needle.style.left = `${constrainedPercent}%`;
-        if (gaugeContainer) gaugeContainer.style.setProperty('--gauge-percent', constrainedPercent);
+        if (gaugeContainer) {
+            gaugeContainer.style.setProperty('--gauge-percent', constrainedPercent);
+        }
     }
 
-    // ===== 3. Synchronously Fetch Data from Both APIs =====
+    // 獨立控制：下方長條圖指針 (對應 Latest Process Time)
+    function setLinearGaugeValue(value, max = 2500) {
+        let constrainedPercent = Math.max(0, Math.min(100, (value / max) * 100));
+        if (needle) {
+            needle.style.left = `${constrainedPercent}%`;
+        }
+    }
+
+    // ===== 3. 同步請求兩支 API =====
     async function fetchBackendStats() {
         const URL_PIE = 'http://192.168.3.85:9090/Load/loadStats';
         const URL_FILTER = 'http://192.168.3.85:9090/Load/allFilterLoadStats';
@@ -184,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch(URL_FILTER, { method: 'GET', headers: { 'accept': '*/*' } }).catch(() => null)
             ]);
 
-            // 1. Process Pie Chart Data (loadStats)
+            // 1. 處理圓餅圖資料 (loadStats)
             if (resPie && resPie.ok) {
                 const pieJson = await resPie.json();
                 const tStats = pieJson.threadStats || {};
@@ -197,13 +204,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusPieChart.update();
             }
 
-            // 2. Process Utilization, Server Pressure, and Recent Processing Time (allFilterLoadStats)
+            // 2. 處理利用率、伺服器壓力與最新處理時間 (allFilterLoadStats)
             if (resFilter && resFilter.ok) {
                 const filterJson = await resFilter.json();
                 
                 const threadStats = filterJson.threadStats || {};
                 
-                // Store 4 fields into filterLoadData for Tooltip usage
+                // 存入指定的四個欄位供 Tooltip 使用
                 filterLoadData = {
                     total_thread: threadStats.total_thread || 0,
                     busy_thread: threadStats.busy_thread || 0,
@@ -215,22 +222,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const busy = filterLoadData.busy_thread;
                 const blocked = filterLoadData.blocked_thread;
                 const total = filterLoadData.total_thread || 1; 
+                
+                // 抓取 QueueSize 與 處理時間
                 const queueSize = filterJson.queueSize || 0;
                 const lastestProcessTime = filterJson.lastestProcessTime || 0;
 
-                // Update top left current utilization
+                // 更新頂部左側目前利用率
                 const utilEl = document.getElementById('utilization-val');
                 if (utilEl) {
                     utilEl.innerText = `${utilization}%`;
                 }
 
-                // Update top right recent data processing time
+                // 更新頂部右側最近一個資料處理時間
                 const timeEl = document.getElementById('process-time-val');
                 if (timeEl) {
                     timeEl.innerText = lastestProcessTime;
                 }
 
-                // Calculate Server Pressure
+                // 計算伺服器壓力
                 let p1 = 0.4 * utilization; 
                 let p2 = 0.3 * (((busy + 1.5 * blocked) / total) / 3 * 100);
                 let p3 = 0.3 * ((queueSize / 50) * 100);
@@ -238,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let pressure = p1 + p2 + p3;
                 pressure = Math.max(0, Math.min(100, Math.round(pressure)));
 
-                // Update Server Pressure display values
+                // 更新伺服器壓力的數值顯示
                 const pressureValEl = document.getElementById('server-pressure-val');
                 const pressureCircleEl = document.getElementById('pressure-circle');
                 
@@ -256,17 +265,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Update existing pressure load gauge
+                // ==========================================
+                // 雙圖表分離更新邏輯
+                // ==========================================
+                // 1. 更新上方半圓圖 (依照 queueSize，假設滿載為 100)
                 const MAX_QUEUE_LIMIT = 100;
-                setGaugeValue(queueSize, MAX_QUEUE_LIMIT);
+                setSemiCircleValue(queueSize, MAX_QUEUE_LIMIT);
+
+                // 2. 更新下方長條圖指針 (依照 lastestProcessTime，極限為 2500ms)
+                const MAX_TIME_LIMIT = 2500;
+                setLinearGaugeValue(lastestProcessTime, MAX_TIME_LIMIT);
             }
 
         } catch (error) {
-            console.error('Failed to fetch backend load stats:', error);
+            console.error('Failed to fetch backend load data:', error);
         }
     }
 
-    // Initialize and set periodic updates (every 1 second)
+    // 初始化與設定定期連線更新 (每 1 秒)
     fetchBackendStats();
     setInterval(fetchBackendStats, 1000);
 });

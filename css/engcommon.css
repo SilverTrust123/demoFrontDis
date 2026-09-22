@@ -60,8 +60,11 @@ html, body {
 .header-main-row {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* ✨ 這會讓標題在左，導覽列在最右 */
-    padding: 0 5px; /* 增加左右內距，避免太貼邊緣 */
+    justify-content: space-between; 
+    padding: 0 5px;
+    
+    /* ⚡ 加上這一行！確保整個 Header 的左右元素撞車時也能換行！ */
+    flex-wrap: wrap; 
 }
 /* ===== 導覽 ===== */
 /* 頁面進入動畫：由下往上浮現並變亮 */
@@ -97,14 +100,19 @@ html, body {
     animation: fadeOut 0.4s ease-in forwards;
 }
 
+/* ===== 導覽列 (英文版專用終極修正) ===== */
 .nav-menu {
     display: flex;
     align-items: center;
     border-radius: 6px;
     padding: 10px 0 10px 10px;
     gap: 0; 
-    margin-left: auto; /* ✨ 自動推擠左側空間，將自己推向最右方 */
-    margin-right: 30px; /* 距離右側邊界留一點空隙 */
+    margin-left: auto; 
+    margin-right: 30px;
+    
+    /* ⚡ 加上這兩行！只要空間不夠，它就會自動往下折行，絕不超出去！ */
+    flex-wrap: wrap; 
+    justify-content: flex-end; 
 }
 
 
@@ -385,4 +393,86 @@ html, body {
 
 .nav-status-icon-btn:hover img {
     transform: scale(1.08);
+}
+/* =========================================
+   🌐 英文版專屬：終極防跑版機制 (1400px 以下提早觸發)
+   ========================================= */
+@media screen and (max-width: 1350px) {
+    
+    /* 0. ⚡ 最關鍵的修復：解除頂部的固定高度限制，讓它可以往下撐開，不被下方卡片蓋住！ */
+    .top-section, 
+    header {
+        height: auto !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* 1. Header 容器：允許內部元素換行，把導覽列擠到下一排，高度改為自動 */
+    .header-main-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        row-gap: 10px !important;
+        padding: 15px 10px !important;
+        height: auto !important; /* 確保容器長高 */
+    }
+
+    /* 2. 急停/繼續按鈕：覆蓋 JS 的 inline-style，縮小體積釋放第一排空間 
+       (你上次改成 20px 太小了字會爆開，建議維持 45px 左右) */
+    #global-header-controls button {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 10px !important;
+        margin: 0 5px !important;
+    }
+
+    /* 3. Logo 標題：稍微縮小字體 */
+    .brand-logo {
+        font-size: 40px !important;
+        margin: 0 0px !important;
+        letter-spacing: 0 !important;
+    }
+
+    /* 4. 導覽列大絕招：強制獨占第二排，且內部按鈕也允許折行到第三排 */
+    .nav-menu {
+        margin: 10px auto 0 auto !important; /* 取消右推，強制置中 */
+        display: flex !important;
+        flex-wrap: wrap !important; /* 允許英文按鈕換行 */
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important; /* 佔滿整行 */
+        height: auto !important; /* 確保折行後不會被切掉 */
+        padding: 5px !important;
+        gap: 8px !important; /* 增加換行後的按鈕間距 */
+    }
+
+    /* 5. 導覽下拉區塊與按鈕：微縮內距與字體，允許自然流動 */
+    .nav-item-dropdown {
+        display: inline-block !important;
+        margin-bottom: 5px !important;
+    }
+
+    .nav-btn {
+        font-size: 30px !important;
+        padding: 8px 12px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* 6. 設定與登入圖示：等比例微縮，並加上底部間距防重疊 */
+    .nav-settings-btn img,
+    .nav-status-icon-btn img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .nav-settings-btn,
+    .nav-status-icon-btn {
+        padding: 0 5px !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* 7. ⚡ 隱藏分隔線：在空間極度不足的平板模式，隱藏白線省下大量空間 */
+    .nav-divider {
+        display: none !important;
+    }
 }

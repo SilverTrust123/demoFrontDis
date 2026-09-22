@@ -1,21 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();           // 1. Initialize theme
-    initErrorModal();      // 2. Initialize full-screen alert (Top alert)
-    initToastModal();      // 3. Initialize bottom-right toast (Bottom warning)
+    initErrorModal();      // 2. Initialize bottom-right critical error modal
+    initSettingsSidebar(); // 3. ⚡ Pre-render navbar and login icon (CRITICAL)
+    initToastModal();      // 4. ⚡ Insert warning bubble into login icon
     initLoginModal();      
     initTimeoutModal();    
-    initSettingsSidebar(); 
-    initControlButtons();  // 4. Dynamically inject and initialize Header left STOP / START buttons
+    initControlButtons();  // 5. Dynamically inject and initialize STOP / START buttons in Header
     checkLoginStatus();
     
-    // Start global background monitoring (integrating Webcam, API sensors, PLC, Log, and Backend status)
+    // Start global background monitor (Webcam, API Sensors, PLC, Logs, and Backend status)
     startGlobalMonitor();
 
-    // Automatically check if login expired every minute
+    // Automatically check if login session is expired every minute
     setInterval(checkLoginStatus, 60000); 
 });
 
-// --- Global Settings: Direct request to physical backend API address ---
+// --- Global Config: Backend API Base URL ---
 const CONFIG = {
     API_BASE: "http://192.168.3.85:9090",
     AUTH_KEY: "admin_token", 
@@ -48,19 +48,20 @@ window.fetchWithAuth = async function(url, options = {}) {
     return fetch(url, { ...options, headers: authHeaders });
 };
 
-// --- Global state variables ---
-let isAlertActive = false;    // Control full-screen alert
+// --- Global Status Variables ---
+let isAlertActive = false;    // Control bottom-right critical alert
 let lastAlertTime = 0;        
-let isToastActive = false;    // Control bottom-right toast
+let isToastActive = false;    // Control tooltip warning bubble
 let lastToastTime = 0;
+let toastTimerId = null;      // Timer ID for auto-closing warning bubble
 
-// State variables to track if a step is stagnant for too long
+// Variables to track stagnated steps
 let lastPlcState = null;
 let stateChangeTimestamp = Date.now();
-const STATE_STAGNATE_LIMIT = 30000; // Considered stagnant if step doesn't change for over 30 seconds
+const STATE_STAGNATE_LIMIT = 30000; // Step unchanged for over 30s is considered stagnated
 
 /**
- * Dark mode logic
+ * Dark Mode Logic
  */
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -80,16 +81,12 @@ function updateDarkModeBtnUI() {
     const darkModeBtn = document.getElementById('sidebar-dark-mode-btn');
     if (darkModeBtn) {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (isEnglishPage()) {
-            darkModeBtn.innerText = currentTheme === 'dark' ? ' Light Mode' : ' Dark Mode';
-        } else {
-            darkModeBtn.innerText = currentTheme === 'dark' ? ' Switch to Light Mode' : ' Switch to Dark Mode';
-        }
+        darkModeBtn.innerText = currentTheme === 'dark' ? ' Switch to Light Mode' : ' Switch to Dark Mode';
     }
 }
 
 /* ==============================================================
- * Multi-language: Cross-folder (html <-> enghtml) routing mechanism
+ * Multi-Language: Folder routing mechanism (html <-> enghtml)
  * ============================================================== */
 
 function isEnglishPage() {
@@ -114,16 +111,12 @@ function toggleLanguage() {
 function updateLangBtnUI() {
     const langBtn = document.getElementById('sidebar-lang-btn');
     if (langBtn) {
-        if (isEnglishPage()) {
-            langBtn.innerText = ' Language: Switch to Chinese';
-        } else {
-            langBtn.innerText = ' Language: Switch to English';
-        }
+        langBtn.innerText = isEnglishPage() ? ' Language: Switch to Chinese' : ' Language: Switch to English';
     }
 }
 
 /* ==============================================================
- * ⚡ Do Not Disturb (DND) mode control logic
+ * ⚡ Do Not Disturb (DND) Mode Logic
  * ============================================================== */
 function toggleDNDMode() {
     let isDND = localStorage.getItem('dnd_mode') === 'true';
@@ -136,17 +129,13 @@ function updateDNDBtnUI() {
     const dndBtn = document.getElementById('sidebar-dnd-btn');
     if (dndBtn) {
         const isDND = localStorage.getItem('dnd_mode') === 'true';
-        if (isEnglishPage()) {
-            dndBtn.innerHTML = `<span style="font-size: 22px; margin-right: 10px;">${isDND ? '🔕' : '✋'}</span> ${isDND ? 'DND Mode (ON)' : 'DND Mode'}`;
-        } else {
-            dndBtn.innerHTML = `<span style="font-size: 22px; margin-right: 10px;">${isDND ? '🔕' : '✋'}</span> ${isDND ? 'DND Mode (ON)' : 'DND Mode'}`;
-        }
+        dndBtn.innerHTML = `<span style="font-size: 22px; margin-right: 10px;">${isDND ? '🔕' : '✋'}</span> ${isDND ? 'DND Mode (ON)' : 'DND Mode'}`;
         dndBtn.style.color = isDND ? '#e74c3c' : 'var(--text-color)';
     }
 }
 
 /* ==============================================================
- * Machine control: Dynamically inject E-Stop and Resume buttons left to the "Home" title in the top left
+ * Machine Control: Dynamically inject STOP/START buttons in Header
  * ============================================================== */
 function initControlButtons() {
     let btnStop = document.getElementById('btn-estop');
@@ -157,9 +146,8 @@ function initControlButtons() {
         const headerRow = document.querySelector('.header-main-row');
 
         if (brandLogo && headerRow) {
-            const isEng = isEnglishPage();
-            const stopText = isEng ? 'STOP' : 'E-STOP';
-            const startText = isEng ? 'START' : 'RESUME';
+            const stopText = 'STOP';
+            const startText = 'START';
 
             const controlContainer = document.createElement('div');
             controlContainer.id = 'global-header-controls';
@@ -209,31 +197,31 @@ function initControlButtons() {
 }
 
 async function handleEStop() {
-    if (!confirm(isEnglishPage() ? "Are you sure you want to execute Emergency Stop?" : "Are you sure you want to execute Emergency Stop?")) return;
+    if (!confirm("Are you sure you want to execute Emergency Stop?")) return;
     try {
         const response = await fetchWithAuth(`${CONFIG.API_BASE}/plc/EStop`, { method: 'GET' });
         if (response.ok) {
             const result = await response.json();
-            alert(`[${isEnglishPage() ? 'E-STOP Success' : 'E-STOP Success'}] ${result.reply || 'Machine has been emergency stopped'}`);
+            alert(`[E-STOP Success] ${result.reply || 'Machine emergency stopped successfully'}`);
         } else {
             const errData = await response.json().catch(() => ({}));
-            alert(`[${isEnglishPage() ? 'E-STOP Failed' : 'E-STOP Failed'}] ${errData.message || response.statusText}`);
+            alert(`[E-STOP Failed] ${errData.message || response.statusText}`);
         }
     } catch (error) {
-        console.error("E-Stop request error:", error);
-        window.showError("Backend connection error: Cannot send E-Stop command!");
+        console.error("E-STOP Request Error:", error);
+        window.showError("Backend Connection Error: Unable to send E-STOP command!");
     }
 }
 
 async function handleResumeStart() {
     const token = localStorage.getItem(CONFIG.AUTH_KEY);
     if (!token) {
-        alert(isEnglishPage() ? "Access Denied: Please log in as Administrator first to control the machine." : "Access Denied: Please log in as Administrator first to control the machine.");
+        alert("Access Denied: Please log in as Administrator first.");
         document.getElementById('login-modal-overlay').style.display = 'block';
         return;
     }
 
-    if (!confirm(isEnglishPage() ? "Are you sure you want to release E-Stop and resume machine operation?" : "Are you sure you want to release E-Stop and resume machine operation?")) return;
+    if (!confirm("Are you sure you want to resume machine operation?")) return;
 
     const payload = { param: "EndEStop", value: true };
     try {
@@ -244,18 +232,18 @@ async function handleResumeStart() {
 
         if (response.ok) {
             const result = await response.json();
-            alert(`[${isEnglishPage() ? 'Resume Success' : 'Resume Success'}] ${result.message || result.reply || 'Command sent successfully'}`);
+            alert(`[Resume Success] ${result.message || result.reply || 'Command sent successfully'}`);
         } else {
             const errData = await response.json().catch(() => ({}));
-            alert(`[${isEnglishPage() ? 'Resume Failed' : 'Resume Failed'}] ${errData.message || response.statusText}`);
+            alert(`[Resume Failed] ${errData.message || response.statusText}`);
         }
     } catch (error) {
-        console.error("Resume request error:", error);
+        console.error("Resume Request Error:", error);
     }
 }
 
 /* ==============================================================
- * ⚡ Global monitor main program: Integrate API to get dynamic Sensor Border limit values and Log 1-minute filtering
+ * ⚡ Global Monitor: Integrates APIs for limits and 1-min log filters
  * ============================================================== */
 async function startGlobalMonitor() {
     const CAM_ENDPOINT = `${CONFIG.API_BASE}/camData/`;
@@ -282,48 +270,48 @@ async function startGlobalMonitor() {
             ]);
 
             // ==========================================
-            // 🛑 Alert (Full Cover / Pop-up full-screen alert)
+            // 🛑 Critical Alert (Bottom-Right Modal)
             // ==========================================
             if (!isAlertActive && (now - lastAlertTime > CONFIG.ALERT_COOLDOWN)) {
                 
-                // 1. Backend connection exception
+                // 1. Backend Connection Error
                 if (loadRes === "DISCONNECTED" || sensorRes === "DISCONNECTED") {
-                    window.showError("Backend connection error: Server disconnected or timed out!");
+                    window.showError("Backend Error: Server disconnected or connection timed out!");
                     return;
                 }
-                // 2. At least one block in backend
+                // 2. Backend Block Triggered
                 if (loadRes && loadRes.block === true) {
-                    window.showError("Backend protection error: Backend Block state triggered!");
+                    window.showError("Backend Protection Error: Server Block status triggered!");
                     return;
                 }
                 // 3. PLC Offline
                 if (plcRes === "DISCONNECTED") {
-                    window.showError("PLC Offline: Cannot communicate with the controller!");
+                    window.showError("PLC Offline: Unable to communicate with the controller!");
                     return;
                 }
-                // 4. Sensor exception / offline
+                // 4. Sensor Offline or Error
                 if (sensorRes && typeof sensorRes === 'object') {
                     if (sensorRes.temp && Array.isArray(sensorRes.temp)) {
                         for (const item of sensorRes.temp) {
                             if (item.status === "offline" || item.error) {
-                                window.showError(`Sensor exception: Temperature sensor ${item.deviceId} offline or malfunctioning!`);
+                                window.showError(`Sensor Error: Temperature sensor ${item.deviceId} is offline or malfunctioning!`);
                                 return;
                             }
                         }
                     }
                 }
-                // 5. Production line stability unstable
+                // 5. Unstable Production Line
                 if (loadRes && loadRes.stability && loadRes.stability < 70) {
                     window.showError(`Production line unstable! Current stability is only ${loadRes.stability}%`);
                     return;
                 }
-                // 6. Single step stagnant for too long
+                // 6. Step Stagnated
                 if (plcRes) {
                     let currentState = plcRes.reply !== undefined ? plcRes.reply : (plcRes.state !== undefined ? plcRes.state : plcRes);
                     if (currentState !== null && currentState !== undefined) {
                         if (currentState === lastPlcState) {
                             if (now - stateChangeTimestamp > STATE_STAGNATE_LIMIT) {
-                                window.showError(`Equipment exception: Single step (State: ${currentState}) stagnant for too long without switching!`);
+                                window.showError(`Equipment Error: Step (State: ${currentState}) stagnated for too long without switching!`);
                                 return;
                             }
                         } else {
@@ -333,41 +321,51 @@ async function startGlobalMonitor() {
                     }
                 }
                 
-                // 7. ⚡ Error reported in log (limited to new errors within 1 minute)
+                // 7. ⚡ Log Error (Only new errors within 1 min)
                 if (logErrorRes) {
-                    // Ensure logErrorRes is an array, if it's a single object, wrap it in an array
-                    let errors = Array.isArray(logErrorRes) ? logErrorRes : [logErrorRes];
+                    let errors = [];
+                    if (Array.isArray(logErrorRes.response)) {
+                        errors = logErrorRes.response;
+                    } else if (Array.isArray(logErrorRes)) {
+                        errors = logErrorRes;
+                    } else {
+                        errors = [logErrorRes];
+                    }
                     
-                    // Find if there are errors "occurred within 1 minute" in the array
                     let hasRecentError = false;
+                    let latestErrMsg = "";
+
                     for (let err of errors) {
-                        // If there is no timestamp field, or the difference is less than 60000ms, consider it a recent error
-                        if (!err.timestamp || (now - err.timestamp <= 60000)) {
+                        if (!err || !err.timestamp) continue;
+                        let errTimeMs = err.timestamp * 1000;
+                        let timeDiff = now - errTimeMs;
+                        if (timeDiff <= 60000 && timeDiff >= 0) {
                             hasRecentError = true;
+                            latestErrMsg = err.message || "No specific details";
                             break;
                         }
                     }
 
                     if (hasRecentError) {
-                        window.showError("System exception: Detected latest error message from /log/error endpoint!");
+                        window.showError(`System Error: New error occurred within 1 minute!\nDetails: ${latestErrMsg}`);
                         return;
                     }
                 }
             }
 
             // ==========================================
-            // ⚠️ Warning (Toast / Bottom-right warning)
+            // ⚠️ Warning (Tooltip Bubble)
             // ==========================================
             if (!isToastActive && (now - lastToastTime > CONFIG.ALERT_COOLDOWN)) {
                 
-                // 1. Someone approaching the production line
+                // 1. Personnel Approaching
                 const camInfo = Array.isArray(camRes) ? camRes[0] : camRes;
                 if (camInfo && camInfo.personCount > 0) {
-                    window.showToast(`Warning: Personnel approach detected on the production line!\n(Current count: ${camInfo.personCount})`);
+                    window.showToast(`Warning: Personnel approach detected!\n(Current Count: ${camInfo.personCount})`);
                     return;
                 }
 
-                // 2. Processing target quantity reached
+                // 2. Production Target Reached
                 try {
                     const [resMetal, resNonMetal] = await Promise.all([
                         fetch(`${CONFIG.API_BASE}/plc/getCountMetal`).then(r => r.json()).catch(() => ({ count: 0 })),
@@ -377,18 +375,18 @@ async function startGlobalMonitor() {
                     const curNonMetal = resNonMetal.count || 0;
 
                     if (lastMetalCount !== null && curMetal >= 1000 && lastMetalCount < 1000) {
-                        window.showToast("Warning: Metal line has reached the target processing quantity (1000)!");
+                        window.showToast("Warning: Metal production line has reached the target quantity (1000)!");
                         return;
                     }
                     if (lastNonMetalCount !== null && curNonMetal >= 1000 && lastNonMetalCount < 1000) {
-                        window.showToast("Warning: Non-metal line has reached the target processing quantity (1000)!");
+                        window.showToast("Warning: Non-metal production line has reached the target quantity (1000)!");
                         return;
                     }
                     lastMetalCount = curMetal;
                     lastNonMetalCount = curNonMetal;
                 } catch (e) {}
 
-                // 3. Temperature setting exception
+                // 3. Temperature Limit Exceeded
                 if (sensorRes && sensorRes.temp && borderRes) {
                     const maxTemp1 = borderRes.temp_1 !== undefined ? borderRes.temp_1 : 999;
                     const maxTemp2 = borderRes.temp_2 !== undefined ? borderRes.temp_2 : 999;
@@ -400,27 +398,27 @@ async function startGlobalMonitor() {
                         }
 
                         if (item.temperature > currentMax) {
-                            window.showToast(`Warning: ${item.deviceId || 'Sensor'} temperature abnormally exceeded limits!\nCurrent: ${item.temperature}°C (Limit: ${currentMax}°C)`);
+                            window.showToast(`Warning: ${item.deviceId || 'Sensor'} temperature exceeded limit!\nCurrent: ${item.temperature}°C (Limit: ${currentMax}°C)`);
                             return;
                         }
                     }
                 }
 
-                // 4. Operation time adjustment exception
+                // 4. Time Parameter Error
                 if (sensorRes && sensorRes.timeError) {
-                    window.showToast("Warning: Operation time parameter adjustment exception!");
+                    window.showToast("Warning: Operation time parameter adjustment error!");
                     return;
                 }
 
-                // 5. General Alarm warning interception
+                // 5. General Alarm Intercept
                 if (sensorRes && sensorRes.alarm) {
-                    window.showToast(`Warning (Alarm): Received system warning message!`);
+                    window.showToast(`Warning (Alarm): System warning message received!`);
                     return;
                 }
             }
 
         } catch (error) {
-            console.warn("Global monitoring error:", error);
+            console.warn("Global Monitor Error:", error);
         }
     };
 
@@ -428,57 +426,13 @@ async function startGlobalMonitor() {
 }
 
 /* ==============================================================
- * Alert UI: Full-screen overlay (Top alert)
+ * 🛑 Critical Error UI: Bottom-Right Alert Box
  * ============================================================== */
 function initErrorModal() {
-    if (document.getElementById('error-overlay')) return;
-    document.body.insertAdjacentHTML('beforeend',`
-    <div id="error-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:11000;justify-content:center;align-items:center;backdrop-filter:blur(6px);">
-        <div style="background:#b09090;width:800px;max-width:95%;border-radius:15px;overflow:hidden;box-shadow:0 0 100px rgba(0,0,0,0.8);text-align:center;border:4px solid #333;">
-            <div style="background:#b09090;padding:25px 10px 10px;display:flex;justify-content:center;">
-                <div style="width:0;height:0;border-left:50px solid transparent;border-right:50px solid transparent;border-bottom:85px solid #c00000;position:relative;">
-                    <span style="position:absolute;top:15px;left:-8px;color:white;font-size:55px;font-weight:bold;font-family:Arial;">!</span>
-                </div>
-            </div>
-            <div style="height:35px;background:repeating-linear-gradient(45deg,#f1c40f,#f1c40f 20px,#222 20px,#222 40px);border-top:3px solid #333;border-bottom:3px solid #333;"></div>
-            <div style="padding:60px 30px;min-height:150px;display:flex;align-items:center;justify-content:center;">
-                <p id="error-message" style="font-size:38px;font-weight:bold;color:white;margin:0;text-shadow:2px 2px 8px rgba(0,0,0,0.6);letter-spacing:2px;">SEVERE EQUIPMENT EXCEPTION!</p>
-            </div>
-            <div style="height:35px;background:repeating-linear-gradient(45deg,#f1c40f,#f1c40f 20px,#222 20px,#222 40px);border-top:3px solid #333;border-bottom:3px solid #333;"></div>
-            <button class="close-error" onclick="hideError()" style="width:100%;padding:30px;border:none;background:#E9CFCF;font-size:32px;font-weight:bold;cursor:pointer;color:#c00000;letter-spacing:4px;border-top:2px solid #333;">CONFIRM & CLOSE</button>
-        </div>
-    </div>`);
-}
-
-window.showError = (msg) => {
-    if (localStorage.getItem('dnd_mode') === 'true') return;
-
-    const overlay = document.getElementById('error-overlay');
-    const message = document.getElementById('error-message');
-    if (overlay && message) { 
-        isAlertActive = true; 
-        message.innerText = msg; 
-        overlay.style.display = 'flex'; 
-    }
-};
-
-window.hideError = () => {
-    const overlay = document.getElementById('error-overlay');
-    if (overlay) {
-        overlay.style.display = 'none';
-        isAlertActive = false;      
-        lastAlertTime = Date.now(); 
-    }
-};
-
-/* ==============================================================
- * Warning UI: Bottom-right pop-up toast (Bottom warning)
- * ============================================================== */
-function initToastModal() {
-    if (document.getElementById('error-toast')) return;
+    if (document.getElementById('error-bottom-toast')) return;
     
     const toastHTML = `
-    <div id="error-toast" style="position: fixed; bottom: 30px; right: -450px; width: 380px; background: #b09090; border-radius: 12px; border: 3px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 12000; transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto;">
+    <div id="error-bottom-toast" style="position: fixed; bottom: 30px; right: -450px; width: 380px; background: #b09090; border-radius: 12px; border: 3px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 12000; transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto;">
         <div style="background:#b09090; padding: 15px; display:flex; justify-content:center;">
             <div style="width:0; height:0; border-left:25px solid transparent; border-right:25px solid transparent; border-bottom:45px solid #c00000; position:relative;">
                 <span style="position:absolute; top:8px; left:-4px; color:white; font-size:28px; font-weight:bold; font-family:Arial;">!</span>
@@ -486,39 +440,113 @@ function initToastModal() {
         </div>
         <div style="height: 15px; background: repeating-linear-gradient(45deg, #f1c40f, #f1c40f 15px, #222 15px, #222 30px); border-top: 2px solid #333; border-bottom: 2px solid #333;"></div>
         <div style="padding: 20px 15px; min-height: 100px; display:flex; align-items:center; justify-content:center; text-align: center;">
-            <p id="toast-message" style="font-size: 20px; font-weight: bold; color: white; margin: 0; text-shadow: 1px 1px 4px rgba(0,0,0,0.5); line-height: 1.4; white-space: pre-wrap;"></p>
+            <p id="error-bottom-message" style="font-size: 20px; font-weight: bold; color: white; margin: 0; text-shadow: 1px 1px 4px rgba(0,0,0,0.5); line-height: 1.4; white-space: pre-wrap;"></p>
         </div>
         <div style="height: 15px; background: repeating-linear-gradient(45deg, #f1c40f, #f1c40f 15px, #222 15px, #222 30px); border-top: 2px solid #333; border-bottom: 2px solid #333;"></div>
-        <button onclick="hideToast()" style="width: 100%; padding: 15px; border: none; background: #E9CFCF; font-size: 20px; font-weight: bold; cursor: pointer; color: #c00000; letter-spacing: 2px; transition: background 0.2s;">CLOSE</button>
+        <button onclick="hideError()" style="width: 100%; padding: 15px; border: none; background: #E9CFCF; font-size: 20px; font-weight: bold; cursor: pointer; color: #c00000; letter-spacing: 2px; transition: background 0.2s;">Confirm & Close</button>
     </div>`;
     document.body.insertAdjacentHTML('beforeend', toastHTML);
 }
 
-window.showToast = (msg) => {
+window.showError = (msg) => {
     if (localStorage.getItem('dnd_mode') === 'true') return;
 
-    const toast = document.getElementById('error-toast');
-    const message = document.getElementById('toast-message'); 
+    const toast = document.getElementById('error-bottom-toast');
+    const message = document.getElementById('error-bottom-message');
     if (toast && message) { 
-        isToastActive = true; 
+        isAlertActive = true; 
         message.innerText = msg; 
         toast.style.right = '30px'; 
     }
 };
 
-window.hideToast = () => {
-    const toast = document.getElementById('error-toast');
+window.hideError = () => {
+    const toast = document.getElementById('error-bottom-toast');
     if (toast) {
         toast.style.right = '-450px'; 
         setTimeout(() => {
-            isToastActive = false;      
-            lastToastTime = Date.now(); 
+            isAlertActive = false;      
+            lastAlertTime = Date.now(); 
         }, 400); 
     }
 };
 
+/* ==============================================================
+ * ⚠️ Warning UI: Tooltip Bubble below Login Status Icon
+ * ============================================================== */
+function initToastModal() {
+    if (document.getElementById('warning-bubble-toast')) return;
+    
+    const bubbleHTML = `
+    <div id="warning-bubble-toast" style="position: absolute; top: calc(100% + 15px); right: -10px; width: 320px; background: #fff; border-radius: 12px; border: 3px solid #e67e22; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 12000; opacity: 0; pointer-events: none; transform: translateY(-15px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column;">
+        
+        <!-- Arrow Border -->
+        <div style="position: absolute; top: -15px; right: 25px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #e67e22;"></div>
+        <!-- Arrow Fill -->
+        <div style="position: absolute; top: -11px; right: 27px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 10px solid #fff;"></div>
+        
+        <!-- Content Area -->
+        <div style="padding: 15px 20px; display: flex; align-items: flex-start; gap: 12px; text-align: left;">
+            <img src="../picture/alert_icon.png" onerror="this.style.display='none'" alt="!" style="width: 30px; height: 30px; object-fit: contain; flex-shrink: 0;">
+            <p id="bubble-toast-message" style="font-size: 16px; font-weight: bold; color: #333; margin: 0; line-height: 1.5; white-space: pre-wrap; flex: 1;"></p>
+        </div>
+    </div>`;
+    
+    // Core Binding: Append the bubble inside the login icon container
+    const loginIconBtn = document.getElementById('login-status-icon-btn');
+    if (loginIconBtn) {
+        loginIconBtn.style.position = 'relative'; 
+        loginIconBtn.insertAdjacentHTML('beforeend', bubbleHTML);
+    } else {
+        document.body.insertAdjacentHTML('beforeend', bubbleHTML);
+    }
+}
+
+window.showToast = (msg) => {
+    if (localStorage.getItem('dnd_mode') === 'true') return;
+
+    const toast = document.getElementById('warning-bubble-toast');
+    const message = document.getElementById('bubble-toast-message'); 
+
+    if (toast && message) { 
+        isToastActive = true; 
+        message.innerText = msg; 
+        
+        toast.style.opacity = '1'; 
+        toast.style.transform = 'translateY(0)';
+        
+        // Cancel existing countdown if multiple triggers happen
+        if (toastTimerId) {
+            clearTimeout(toastTimerId);
+        }
+
+        // Auto close after 10 seconds
+        toastTimerId = setTimeout(() => {
+            window.hideToast();
+        }, 10000);
+    }
+};
+
+window.hideToast = () => {
+    const toast = document.getElementById('warning-bubble-toast');
+    if (toast) {
+        toast.style.opacity = '0'; 
+        toast.style.transform = 'translateY(-15px)';
+        
+        if (toastTimerId) {
+            clearTimeout(toastTimerId);
+            toastTimerId = null;
+        }
+
+        setTimeout(() => {
+            isToastActive = false;      
+            lastToastTime = Date.now(); 
+        }, 300); 
+    }
+};
+
 // ==============================================================
-// Login and UI operation settings
+// Login & UI Setup
 // ==============================================================
 
 function initLoginModal() {
@@ -528,7 +556,7 @@ function initLoginModal() {
     <div id="login-modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:rgba(0,0,0,0.5); backdrop-filter: blur(5px);">
         <div class="login-card" style="background: rgba(255, 255, 255, 0.85); width: 350px; padding: 40px 30px; border-radius: 30px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; border: 1px solid rgba(255,255,255,0.3);">
             <div style="margin-bottom: 10px;"><img src="../picture/login_icon.png" style="width: 200px; opacity: 0.8;" alt="LoginIcon"></div>
-            <h2 style="margin: 0; color: #333; font-size: 24px; letter-spacing: 2px;">Account & Password Login</h2>
+            <h2 style="margin: 0; color: #333; font-size: 24px; letter-spacing: 2px;">Account Login</h2>
             <p style="margin: 5px 0 25px; color: #333; font-size: 28px; font-weight: bold;">LOG IN</p>
             <div class="input-container" style="position: relative; margin-bottom: 15px;">
                 <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #1a5a7a; font-size: 20px;">👤</span>
@@ -540,7 +568,7 @@ function initLoginModal() {
             </div>
             <div id="login-modal-msg" style="font-size:12px; color:#e74c3c; margin-bottom:10px; min-height:15px;"></div>
             <button id="btn-login-submit" style="width: 100%; padding: 12px; background: #418d9e; color: white; border: none; border-radius: 25px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(65, 141, 158, 0.3); transition: background 0.3s;">Login</button>
-            <button id="btn-login-cancel" style="margin-top: 15px; background: none; border: none; color: #888; cursor: pointer; font-size: 14px; text-decoration: underline;">Cancel Login</button>
+            <button id="btn-login-cancel" style="margin-top: 15px; background: none; border: none; color: #888; cursor: pointer; font-size: 14px; text-decoration: underline;">Cancel</button>
         </div>
     </div>`;
     
@@ -557,7 +585,7 @@ async function handleLoginSubmit() {
     const msg = document.getElementById('login-modal-msg');
 
     if (!user || !pass) {
-        msg.innerText = "Please enter account and password completely";
+        msg.innerText = "Please enter account and password";
         return;
     }
 
@@ -610,7 +638,7 @@ function checkLoginStatus() {
         if (now - loginTime > CONFIG.EXPIRE_TIME) {
             localStorage.removeItem(CONFIG.AUTH_KEY);
             localStorage.removeItem(CONFIG.TIME_KEY);
-            window.showToast("Warning: Login authorization expired, please log in again!");
+            window.showToast("Warning: Login session expired, please log in again!");
             showTimeoutModal(); 
             return;
         }
@@ -619,7 +647,7 @@ function checkLoginStatus() {
     if (token && loginBtn && logoutBtn) {
         loginBtn.style.display = 'none';
         logoutBtn.style.display = 'block';
-        if (statusText) statusText.innerText = "Status: Authorized Administrator";
+        if (statusText) statusText.innerText = "Status: Authorized Admin";
         if (statusImg) statusImg.src = "../picture/login.png";
     } else if (loginBtn && logoutBtn) {
         loginBtn.style.display = 'block';
@@ -636,7 +664,7 @@ function initTimeoutModal() {
         <div style="background:white; width:320px; border-radius:20px; padding:30px 20px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.3);">
             <div style="margin-bottom:15px;"><img src="../picture/alert_icon.png" style="width:80px;" alt="Warning"></div>
             <h2 style="margin:0; color:#333; font-size:22px;">Notice</h2>
-            <p style="margin:10px 0 20px; color:#e74c3c; font-size:18px; font-weight:bold; line-height:1.5;">Session Expired<br>Please Log In Again</p>
+            <p style="margin:10px 0 20px; color:#e74c3c; font-size:18px; font-weight:bold; line-height:1.5;">Login session expired.<br>Please log in again.</p>
             <button id="btn-timeout-confirm" style="background:#bbb; color:#333; border:none; padding:8px 30px; border-radius:20px; font-size:16px; font-weight:bold; cursor:pointer;">OK</button>
         </div>
     </div>`;
@@ -680,12 +708,12 @@ function initSettingsSidebar() {
                     <h2 style="margin:0; font-size: 18px; color: var(--text-color, #333);">Toolbar</h2>
                 </div>
                 
-                <div id="sidebar-dark-mode-btn" class="sidebar-menu-item" style="padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;"> Dark Mode</div>
-                <div id="sidebar-lang-btn" class="sidebar-menu-item" style="padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;"> Language Toggle</div>
+                <div id="sidebar-dark-mode-btn" class="sidebar-menu-item" style="padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;"> Switch to Dark Mode</div>
+                <div id="sidebar-lang-btn" class="sidebar-menu-item" style="padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;"> Switch Language</div>
                 <div id="sidebar-about-btn" class="sidebar-menu-item" style=" padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor:pointer; text-align:left;">About</div>
                 
                 <div id="sidebar-login-btn" class="sidebar-menu-item" style="padding: 15px 20px; color:#2ecc71; font-weight:bold; cursor: pointer;">System Login</div>
-                <div id="sidebar-logout-btn" class="sidebar-menu-item" style="padding: 15px 20px; color:#e74c3c; font-weight:bold; display:none; cursor: pointer;">System Logout</div>
+                <div id="sidebar-logout-btn" class="sidebar-menu-item" style="padding: 15px 20px; color:#e74c3c; font-weight:bold; display:none; cursor: pointer;">Logout</div>
                 <div id="login-status-text" style="padding:0 20px; font-size:12px; color:#888; margin-top:5px;"></div>
                 
                 <div id="sidebar-dnd-btn" class="sidebar-menu-item" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; border-top: 1px solid rgba(0,0,0,0.1); cursor: pointer; display: flex; align-items: center; box-sizing: border-box; background: var(--sidebar-bg, white);">
@@ -699,7 +727,7 @@ function initSettingsSidebar() {
                     <hr style="margin: 20px 0; border: 0; border-top: 1px solid rgba(0,0,0,0.1);">
                     <p style="font-size: 18px; color: var(--text-sub-color, #666); line-height: 1.6;">Name:<br>
 PLC model name - unit ID<br>
-PLC model type - 5uU-64MR-ES<br>
+PLC model type - FX5U-64MR-ES<br>
 
 Ethernet  IP<br>
 PLC ip<br>
