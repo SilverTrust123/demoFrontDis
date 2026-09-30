@@ -12,21 +12,27 @@ body {
     height: 100vh;
 }
 
-/* 導覽列樣式簡化 */
+/* 導覽列樣式簡化 (修復主頁跑版問題) */
 .top-nav-section {
     background: #fff;
     padding: 10px 20px;
     border-bottom: 2px solid #ccc;
 }
+
 .header-main-row { 
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
+    flex-wrap: wrap !important; /* ⚡ 補回折行設定，防止跑版 */
+    height: auto !important;    /* ⚡ 確保高度可以撐開 */
 }
+
 .nav-menu { 
     display: flex; 
-    align-items: center; /* 確保選單項目垂直對齊 */
-    gap: 4px; /* 稍微縮小選單之間的間距，原本為 15px */
+    align-items: center; 
+    justify-content: flex-end; 
+    flex-wrap: wrap !important; /* ⚡ 補回內部按鈕折行設定 */
+    gap: 4px; 
 }
 
 /* 修正按鈕文字換行問題 */

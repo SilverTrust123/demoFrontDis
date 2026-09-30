@@ -445,7 +445,7 @@ function initErrorModal() {
     if (document.getElementById('error-bottom-toast')) return;
     
     const toastHTML = `
-    <div id="error-bottom-toast" style="position: fixed; bottom: 30px; right: -450px; width: 380px; background: #b09090; border-radius: 12px; border: 3px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 12000; transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto;">
+    <div id="error-bottom-toast" style="position: fixed; bottom: 30px; right: -450px; width: 380px; background: #b09090; border-radius: 12px; border: 3px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 900; transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column; overflow: hidden; pointer-events: auto;">
         <div style="background:#b09090; padding: 15px; display:flex; justify-content:center;">
             <div style="width:0; height:0; border-left:25px solid transparent; border-right:25px solid transparent; border-bottom:45px solid #c00000; position:relative;">
                 <span style="position:absolute; top:8px; left:-4px; color:white; font-size:28px; font-weight:bold; font-family:Arial;">!</span>
@@ -493,7 +493,7 @@ function initToastModal() {
     
     // 這裡我們把 position 設為 absolute，並用百分比定位
     const bubbleHTML = `
-    <div id="warning-bubble-toast" style="position: absolute; top: calc(100% + 15px); right: -10px; width: 320px; background: #fff; border-radius: 12px; border: 3px solid #e67e22; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 12000; opacity: 0; pointer-events: none; transform: translateY(-15px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column;">
+    <div id="warning-bubble-toast" style="position: absolute; top: calc(100% + 15px); right: -10px; width: 320px; background: #fff; border-radius: 12px; border: 3px solid #e67e22; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 900; opacity: 0; pointer-events: none; transform: translateY(-15px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); display: flex; flex-direction: column;">
         
         <!-- 向上箭頭外框 (Border) -->
         <div style="position: absolute; top: -15px; right: 25px; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #e67e22;"></div>
@@ -725,7 +725,6 @@ function initSettingsSidebar() {
                     <img src="../picture/setting.png" alt="icon" style="width:20px; margin-right: 10px;">
                     <h2 style="margin:0; font-size: 18px; color: var(--text-color, #333);">工具列</h2>
                 </div>
-                
                 <div id="sidebar-dark-mode-btn" class="sidebar-menu-item" style="padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;"> 深色模式</div>
                 <div id="sidebar-lang-btn" class="sidebar-menu-item" style="padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer;"> 語言切換</div>
                 <div id="sidebar-about-btn" class="sidebar-menu-item" style=" padding: 15px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor:pointer; text-align:left;">關於</div>

@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (saveStatus.textContent === "Auto-saved ✓") saveStatus.textContent = "";
                 }, 3000);
             } else {
-                saveStatus.textContent = "Save failed ✕";
+                saveStatus.textContent = "Login Please";
                 saveStatus.style.color = '#e74c3c';
             }
         } catch (error) {

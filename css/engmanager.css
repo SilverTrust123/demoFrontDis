@@ -421,6 +421,7 @@ body {
     border-bottom: 15px solid #333;
     transition: left 0.4s ease-out; 
 }
+
 @media screen and (max-width: 1200px) {
 
     /* ⚡ 1. 調整主網格排列 (從 3 欄變 2 欄) */
