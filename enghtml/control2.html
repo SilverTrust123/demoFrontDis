@@ -19,7 +19,7 @@
             <h1 class="brand-logo">Control Interface</h1>
 
             <nav class="nav-menu">
-                
+
                 <!-- 1. Home Dropdown -->
                 <div class="nav-item-dropdown">
                     <a href="index.html" class="nav-btn">Home</a>
@@ -145,7 +145,6 @@
 
             </nav>
         </div>
-
         <div class="header-divider"></div>
     </header>
 
@@ -169,9 +168,6 @@
             </a>
             <a href="control5.html" class="menu-item">
                 <img src="../picture/nonmetal.png">
-            </a>
-            <a href="javascript:void(0)" id="reset-btn" class="menu-item">
-                <img src="../picture/reset.png" alt="Reset">
             </a>
         </div>
 
@@ -204,6 +200,7 @@
                         <button>+</button>
                     </div>
                 </div>
+
                 <div class="control-row">
                     <div class="control-label">Robot Arm Downward Ensure Time</div>
                     <div class="control-adjust">
@@ -212,6 +209,7 @@
                         <button>+</button>
                     </div>
                 </div>
+
                 <div class="control-row">
                     <div class="control-label">Workpiece Gripping Waiting Time</div>
                     <div class="control-adjust">
@@ -232,6 +230,7 @@
                         <button>+</button>
                     </div>
                 </div>
+
                 <div class="control-row">
                     <div class="control-label">Robot Arm Post-Downward Stop Time</div>
                     <div class="control-adjust">
@@ -240,6 +239,7 @@
                         <button>+</button>
                     </div>
                 </div>
+
                 <div class="control-row">
                     <div class="control-label">Post-Release Waiting Time</div>
                     <div class="control-adjust">
@@ -248,6 +248,7 @@
                         <button>+</button>
                     </div>
                 </div>
+
                 <div class="control-row">
                     <div class="control-label">Robot Arm Upward Stop Time</div>
                     <div class="control-adjust">
@@ -258,11 +259,17 @@
                 </div>
             </div>
 
+            <!-- ⚡ Reset to Default button (bottom-right of the screen) -->
+            <button id="reset-btn" class="reset-param-btn" title="Reset to Default">
+                <img src="../picture/reset.png" alt="Reset">
+                <span>Reset to Default</span>
+            </button>
+
             <div id="nextPageBtn" class="arrow-btn next" title="Next Page">
                 <img src="../picture/blue_arrow_right.png" alt="Next">
             </div>
         </div>
-        
+
         <!-- ⚡ Bottom floating confirmation bar, displays metal expected capacity only -->
         <div class="floating-confirm-bar" id="save-bar">
             <div class="confirm-text">
@@ -270,7 +277,7 @@
             </div>
             <button class="confirm-btn" id="save-btn">Confirm Save (SET)</button>
         </div>
-        
+
     </section>
 
 </main>

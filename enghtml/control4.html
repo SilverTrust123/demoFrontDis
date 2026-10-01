@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Interface - Rotary Cylinder</title>
 
-    <link rel="stylesheet" href="../css/control.css">
+    <link rel="stylesheet" href="../css/control4.css">
     <link rel="stylesheet" href="../css/engcommon.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -19,7 +19,7 @@
             <h1 class="brand-logo">Control Interface</h1>
 
             <nav class="nav-menu">
-                
+
                 <!-- 1. Home Dropdown -->
                 <div class="nav-item-dropdown">
                     <a href="index.html" class="nav-btn">Home</a>
@@ -145,7 +145,6 @@
 
             </nav>
         </div>
-
         <div class="header-divider"></div>
     </header>
 
@@ -170,26 +169,19 @@
             <a href="control5.html" class="menu-item">
                 <img src="../picture/nonmetal.png">
             </a>
-            <a href="javascript:void(0)" id="reset-btn" class="menu-item">
-                <img src="../picture/reset.png" alt="Reset">
-            </a>
         </div>
 
         <!-- Rotary Cylinder Section -->
         <div class="machine-panel">
-
             <div class="machine-title">Rotary Cylinder</div>
-
             <div class="machine-image">
                 <img src="../picture/machine5-1.png">
             </div>
-
         </div>
     </section>
 
     <!-- ===== Right Control Board ===== -->
     <section class="control-board">
-
         <div class="board-bg">
             <img src="../picture/monitor.png">
         </div>
@@ -244,9 +236,15 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ⚡ Reset to Default button (bottom-right of the screen) -->
+            <button id="reset-btn" class="reset-param-btn" title="Reset to Default">
+                <img src="../picture/reset.png" alt="Reset">
+                <span>Reset to Default</span>
+            </button>
         </div>
-        
-        <!-- ⚡ Bottom Floating Confirmation Bar (Displays predicted metal output) -->
+
+        <!-- ⚡ Bottom Floating Confirmation Bar -->
         <div class="floating-confirm-bar" id="save-bar">
             <div class="confirm-text">Value changed&nbsp;&nbsp;&nbsp;Updated Hourly Output ➔ <span id="new-uph" style="color: #00ff88; font-size: 18px;">--</span></div>
             <button class="confirm-btn" id="save-btn">Confirm Save (SET)</button>
