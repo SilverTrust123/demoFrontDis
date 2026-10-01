@@ -13,7 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
         blocked_thread: 0
     };
 
- // ===== 1. 初始化圓餅圖 =====
+    // 各狀態在 Tooltip 中顯示的名稱與說明
+    const statusDescriptions = {
+        runnable:      { name: '狀態：runnable', desc: 'running：正在執行。' },
+        waiting:       { name: '狀態：waiting', desc: 'waiting：等待某事發生，例如等待使用者輸入完成。亦稱「阻塞」（blocked）' },
+        timed_waiting: { name: '狀態：timed_waiting',   desc: 'ready：排班中，等待CPU' }
+    };
+
+    // ===== 1. 初始化圓餅圖 =====
     const pieCanvas = document.getElementById('statusPieChart');
     const ctx = pieCanvas.getContext('2d');
 
@@ -30,12 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         data: {
             labels: ['runnable', 'waiting', 'blocked', 'timed_waiting'],
             datasets: [{
-                data: [0, 0, 0, 0], 
+                data: [0, 0, 0, 0],
                 backgroundColor: [
-                    '#89def8',   // waiting - 藍色
-                    '#e373fd',   // blocked - 紫粉色
-                    '#ff7c7c',    
-                    '#7add81f9' 
+                    '#89def8',
+                    '#e373fd',
+                    '#ff7c7c',
+                    '#7add81f9'
                 ],
                 borderColor: '#ffffff',
                 borderWidth: 2,
@@ -65,11 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             tooltipEl.style.borderRadius = '6px';
                             tooltipEl.style.padding = '12px';
                             tooltipEl.style.pointerEvents = 'none';
-                            
-                            // ⚡ 將透明度 (opacity) 的退場時間拉長為 0.3s，營造「自然淡出」的效果
-                            // 而座標的移動 (left, top, transform) 則保持 0.1s 確保跟手
+
+                            // ⚡ 透明度退場 0.3s 營造淡出；座標移動 0.1s 確保跟手
                             tooltipEl.style.transition = 'opacity 0.3s ease, left 0.1s ease, top 0.1s ease, transform 0.1s ease';
-                            
+
                             tooltipEl.style.fontFamily = 'monospace';
                             tooltipEl.style.fontSize = '12px';
                             tooltipEl.style.color = '#333';
@@ -93,26 +99,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (tooltipModel.body) {
                             const dataIndex = tooltipModel.dataPoints[0].dataIndex;
                             statusLabel = context.chart.data.labels[dataIndex];
+                            const info = statusDescriptions[statusLabel];
 
-                            let innerHtml = `<div style="font-weight:bold; font-size:14px; margin-bottom:6px; color:#333; font-family:sans-serif;">狀態: ${statusLabel}</div>`;
-                            
-                            const filteredObj = {
-                                total_thread: filterLoadData.total_thread,
-                                busy_thread: filterLoadData.busy_thread,
-                                idle_thread: filterLoadData.idle_thread,
-                                blocked_thread: filterLoadData.blocked_thread
-                            };
-                            
-                            const formattedJson = JSON.stringify(filteredObj, null, 2);
-                            innerHtml += `<pre style="margin:0; font-family:monospace;">${formattedJson}</pre>`;
-
-                            tooltipEl.innerHTML = innerHtml;
+                            if (info) {
+                                tooltipEl.innerHTML = `
+                                    <div style="font-weight:bold; font-size:14px; margin-bottom:6px; font-family:sans-serif;">${info.name}</div>
+                                    <div style="font-size:13px; font-family:sans-serif; line-height:1.5; max-width:220px;">${info.desc}</div>`;
+                            } else {
+                                // 沒有對照說明的狀態（例如 blocked）維持原本的 JSON 顯示
+                                const formattedJson = JSON.stringify(filterLoadData, null, 2);
+                                tooltipEl.innerHTML = `
+                                    <div style="font-weight:bold; font-size:14px; margin-bottom:6px; font-family:sans-serif;">狀態: ${statusLabel}</div>
+                                    <pre style="margin:0; font-family:monospace;">${formattedJson}</pre>`;
+                            }
                         }
 
                         // 計算圓心與半徑，將 Tooltip 推到圓外
                         const position = context.chart.canvas.getBoundingClientRect();
                         const chartArea = context.chart.chartArea;
-                        
+
                         const centerX = position.left + window.pageXOffset + (chartArea.left + chartArea.right) / 2;
                         const centerY = position.top + window.pageYOffset + (chartArea.top + chartArea.bottom) / 2;
 
@@ -132,10 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // ⚡ 針對 timed_waiting 強制將座標鎖定在「左上角」
                         if (statusLabel === 'timed_waiting') {
-                            finalX = centerX - radius - 10; // 圓心往左推到圓外
-                            finalY = centerY - radius - 10; // 圓心往上推到圓外
-                            translateX = '-70%';           // 讓黃色框框往更左邊延伸
-                            translateY = '-50%';           // 讓黃色框框往更上面延伸
+                            finalX = centerX - radius - 10;
+                            finalY = centerY - radius - 10;
+                            translateX = '-70%';
+                            translateY = '-50%';
                         }
 
                         // 顯示並定位 Tooltip
@@ -153,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: '#ffffff',
                     font: { weight: 'bold', size: 14, family: 'Arial' },
                     formatter: (value, context) => {
-                        if (value === 0) return ''; 
+                        if (value === 0) return '';
                         return context.chart.data.labels[context.dataIndex];
                     },
                     anchor: 'center',
@@ -187,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchBackendStats() {
         const URL_PIE = 'http://192.168.3.85:9090/Load/loadStats';
         const URL_FILTER = 'http://192.168.3.85:9090/Load/allFilterLoadStats';
-        
+
         try {
             const [resPie, resFilter] = await Promise.all([
                 fetch(URL_PIE, { method: 'GET', headers: { 'accept': '*/*' } }).catch(() => null),
@@ -210,9 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. 處理利用率、伺服器壓力與最新處理時間 (allFilterLoadStats)
             if (resFilter && resFilter.ok) {
                 const filterJson = await resFilter.json();
-                
+
                 const threadStats = filterJson.threadStats || {};
-                
+
                 // 存入指定的四個欄位供 Tooltip 使用
                 filterLoadData = {
                     total_thread: threadStats.total_thread || 0,
@@ -224,8 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const utilization = threadStats.utilization || 0;
                 const busy = filterLoadData.busy_thread;
                 const blocked = filterLoadData.blocked_thread;
-                const total = filterLoadData.total_thread || 1; 
-                
+                const total = filterLoadData.total_thread || 1;
+
                 // ⚡ 抓取 QueueSize 與 處理時間
                 const queueSize = filterJson.queueSize || 0;
                 const lastestProcessTime = filterJson.lastestProcessTime || 0;
@@ -243,28 +248,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // 計算伺服器壓力
-                let p1 = 0.4 * utilization; 
+                let p1 = 0.4 * utilization;
                 let p2 = 0.3 * (((busy + 1.5 * blocked) / total) / 3 * 100);
                 let p3 = 0.3 * ((queueSize / 50) * 100);
-                
+
                 let pressure = p1 + p2 + p3;
                 pressure = Math.max(0, Math.min(100, Math.round(pressure)));
 
                 // 更新伺服器壓力的數值顯示
                 const pressureValEl = document.getElementById('server-pressure-val');
                 const pressureCircleEl = document.getElementById('pressure-circle');
-                
+
                 if (pressureValEl) {
                     pressureValEl.innerText = pressure;
                 }
-                
+
                 if (pressureCircleEl) {
                     if (pressure <= 33) {
-                        pressureCircleEl.style.setProperty('--pressure-color', '#28a745'); 
+                        pressureCircleEl.style.setProperty('--pressure-color', '#28a745');
                     } else if (pressure <= 66) {
-                        pressureCircleEl.style.setProperty('--pressure-color', '#ffea4a'); 
+                        pressureCircleEl.style.setProperty('--pressure-color', '#ffea4a');
                     } else {
-                        pressureCircleEl.style.setProperty('--pressure-color', '#ff4d4d'); 
+                        pressureCircleEl.style.setProperty('--pressure-color', '#ff4d4d');
                     }
                 }
 
@@ -275,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const MAX_QUEUE_LIMIT = 100;
                 setSemiCircleValue(queueSize, MAX_QUEUE_LIMIT);
 
-                // 2. 更新下方長條圖指針 (依照 lastestProcessTime，極限為 2500ms)
+                // 2. 更新下方長條圖指針 (依照 lastestProcessTime，極限為 1000ms)
                 const MAX_TIME_LIMIT = 1000;
                 setLinearGaugeValue(lastestProcessTime, MAX_TIME_LIMIT);
             }

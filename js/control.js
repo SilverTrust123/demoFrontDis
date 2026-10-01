@@ -246,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkChanges();
     }
 
+    // ⚡ 參數重置按鈕 (位於螢幕右下角)
     if (resetBtn) {
         resetBtn.addEventListener('click', async () => {
             if (!confirm("確定要發送重置指令嗎？")) return;
